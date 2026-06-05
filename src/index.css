@@ -1,0 +1,85 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-warm-beige: #F5F5F5;
+  --color-ink-black: #050505;
+  --color-charcoal-medium: #111111;
+  --color-gold-accent: #F27D26;
+  --color-sepia-beige: #F27D26;
+}
+
+/* Base modifications and global styles */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-ink-black);
+  color: var(--color-warm-beige);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom noise layout overlay to give a high-fashion, vintage texture */
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+}
+
+/* Bold Typography Theme Styles */
+.display-name {
+  font-family: var(--font-serif);
+  font-size: clamp(3.2rem, 8vw, 7.8rem);
+  line-height: 0.85;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.display-bg-name {
+  font-family: var(--font-serif);
+  font-size: clamp(6rem, 16vw, 14rem);
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.credit-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.30s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.credit-row:hover {
+  background: rgba(242, 125, 38, 0.05);
+  border-bottom-color: rgba(242, 125, 38, 0.4);
+  padding-left: 0.5rem;
+}
+
+/* Soft cinematic keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-ink-black);
+}
+::-webkit-scrollbar-thumb {
+  background: #222;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sepia-beige);
+}
+

@@ -1,0 +1,6 @@
+{
+  "name": "Husne Shabnam Portfolio",
+  "description": "Professional portfolio website for Husne Shabnam, trained actor and Bengali dialect coach.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
