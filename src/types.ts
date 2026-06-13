@@ -7,6 +7,7 @@ export interface ActorProject {
   year: string;
   featured?: boolean;
   synopsis?: string;
+  imageUrl?: string;
 }
 
 export interface DialectCoachProject {

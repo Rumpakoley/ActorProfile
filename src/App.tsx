@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   personalDetails, 
   bioSummary, 
@@ -20,7 +20,6 @@ import {
   AnimatePresence 
 } from 'motion/react';
 import { 
-  User, 
   Film, 
   Mic, 
   Mail, 
@@ -29,28 +28,32 @@ import {
   CheckCircle, 
   MapPin, 
   Sparkles, 
-  Award, 
   Play, 
   Pause, 
   Volume2, 
   VolumeX, 
   ClipboardCopy, 
   ArrowRight, 
-  Layers, 
   Search, 
-  TrendingUp, 
   Send,
-  Sliders,
-  ChevronRight,
-  Info
+  Clock
 } from 'lucide-react';
 
 export default function App() {
-  // Navigation tabs
+  // Navigation active tab (scroll sections focus helper)
   const [activeTab, setActiveTab] = useState<'actor' | 'coach'>('actor');
   
   // Hero portrait archetype selector
   const [selectedArchetypeIndex, setSelectedArchetypeIndex] = useState<number>(0);
+
+  // Auto-cycle lookbook headshots, resetting timer on manual selection
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSelectedArchetypeIndex((prev) => (prev + 1) % portraitGallery.length);
+    }, 5000); // cycle every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [selectedArchetypeIndex]);
   
   // Search and filters for Acting Projects
   const [actingSearchQuery, setActingSearchQuery] = useState('');
@@ -59,7 +62,7 @@ export default function App() {
   // Search and filters for Coaching Projects
   const [coachSearchQuery, setCoachSearchQuery] = useState('');
   
-  // Custom Voice Demo Player State
+  // Custom Voice Reel Player State
   const [activeReelIndex, setActiveReelIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [playbackSeconds, setPlaybackSeconds] = useState<number>(0);
@@ -67,11 +70,72 @@ export default function App() {
   const [isMuted, setIsMuted] = useState<boolean>(false);
   const [waveformBars, setWaveformBars] = useState<number[]>([]);
 
-  // Sound effect / voice simulation helpers
+  // Clock states
+  const [istTime, setIstTime] = useState('');
+  const [istDate, setIstDate] = useState('');
+  const [localTime, setLocalTime] = useState('');
+  const [localZone, setLocalZone] = useState('');
+
+  // Voice reels slider reference
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+  // Movie slider reference
+  const movieSliderRef = useRef<HTMLDivElement>(null);
+
+  // Coaching slider reference
+  const coachSliderRef = useRef<HTMLDivElement>(null);
+
+  // Timezone clocks updater
   useEffect(() => {
-    // Generate static visual waveform bars for selected reel
-    const barsCount = 28;
-    const initialBars = Array.from({ length: barsCount }, () => Math.floor(Math.random() * 60) + 10);
+    const updateClocks = () => {
+      const now = new Date();
+      
+      // IST Date format
+      const formatterDate = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+      setIstDate(formatterDate.format(now));
+
+      // IST Time format
+      const formatterTime = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Kolkata',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+      setIstTime(formatterTime.format(now));
+
+      // Local Time format
+      const localFormatterTime = new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+      setLocalTime(localFormatterTime.format(now));
+
+      // Local Zone name
+      try {
+        const zoneName = Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop()?.replace('_', ' ') || 'Local';
+        setLocalZone(zoneName);
+      } catch (e) {
+        setLocalZone('Local Time');
+      }
+    };
+
+    updateClocks();
+    const clockInterval = setInterval(updateClocks, 1000);
+    return () => clearInterval(clockInterval);
+  }, []);
+
+  // Generate static visual waveform bars for selected reel
+  useEffect(() => {
+    const barsCount = 38;
+    const initialBars = Array.from({ length: barsCount }, () => Math.floor(Math.random() * 60) + 15);
     setWaveformBars(initialBars);
     setPlaybackSeconds(0);
     setIsPlaying(false);
@@ -93,7 +157,7 @@ export default function App() {
 
         // Randomize waveform bars slightly to show active pulses
         setWaveformBars((prevBars) => 
-          prevBars.map((b) => Math.max(10, Math.min(100, b + (Math.random() * 30 - 15))))
+          prevBars.map((b) => Math.max(15, Math.min(100, b + (Math.random() * 24 - 12))))
         );
       }, 1000);
     } else {
@@ -162,7 +226,7 @@ export default function App() {
         hour: '2-digit',
         minute: '2-digit'
       }),
-      status: 'Awaiting Response / Review'
+      status: 'Awaiting Response'
     };
 
     const updated = [newBooking, ...savedBookings];
@@ -216,741 +280,683 @@ export default function App() {
     return matchesSearch;
   });
 
-  // Headshots selector archetype click
   const handleArchetypeClick = (index: number) => {
     setSelectedArchetypeIndex(index);
+    const heroDisplay = document.getElementById('hero-display');
+    if (heroDisplay) {
+      heroDisplay.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollSlider = (direction: 'left' | 'right') => {
+    if (sliderRef.current) {
+      const scrollAmount = direction === 'left' ? -380 : 380;
+      sliderRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const scrollMovieSlider = (direction: 'left' | 'right') => {
+    if (movieSliderRef.current) {
+      const scrollAmount = direction === 'left' ? -380 : 380;
+      movieSliderRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const scrollCoachSlider = (direction: 'left' | 'right') => {
+    if (coachSliderRef.current) {
+      const scrollAmount = direction === 'left' ? -380 : 380;
+      coachSliderRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
   };
 
   return (
-    <div className="relative min-h-screen bg-ink-black text-warm-beige noise-overlay selection:bg-sepia-beige selection:text-ink-black pb-20">
+    <div className="relative min-h-screen cream text-[#0e0e0e] noise-overlay selection:bg-[#ffd177] selection:text-black pb-20">
       
-      {/* GLOWING AMBIENT BACKGROUND DECORATION */}
-      <div className="absolute top-0 right-[10%] w-[35rem] h-[35rem] rounded-full bg-sepia-beige/5 blur-[120px] pointer-events-none" />
-      <div className="absolute top-[40%] left-[5%] w-[40rem] h-[40rem] rounded-full bg-sepia-beige/3 blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-[10%] right-[5%] w-[30rem] h-[30rem] rounded-full bg-sepia-beige/4 blur-[110px] pointer-events-none" />
+      {/* FLOATING HEADER / MENU */}
+      <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center bg-[#fff3db]/90 backdrop-blur-md border border-black/15 shadow-lg rounded-full py-1.5 px-3 sm:px-4 gap-1 sm:gap-2 max-w-[92vw]">
+        <a href="#acting-timeline" className="px-3 py-1.5 rounded-full hover:bg-black/5 font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
+          actor
+        </a>
+        <a href="#coaching-voice" className="px-3 py-1.5 rounded-full hover:bg-black/5 font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
+          voice &amp; dialect
+        </a>
+        <a href="#skills-game-grid" className="px-3 py-1.5 rounded-full hover:bg-black/5 font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
+          skills
+        </a>
+        <a href="#booking-contact" className="px-4 py-1.5 bg-[#0e0e0e] hover:bg-[#ffd177] hover:text-black text-white rounded-full font-mono text-[10px] uppercase font-bold tracking-wider transition-all shadow-sm">
+          contact
+        </a>
+      </div>
 
-      {/* HEADER NAVIGATION */}
-      <header id="nav-header" className="sticky top-0 z-50 bg-ink-black/90 backdrop-blur-md border-b border-warm-beige/10 py-5 px-6 md:px-12 transition-all">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-none border border-sepia-beige flex items-center justify-center bg-sepia-beige/10">
-              <span className="font-serif font-bold text-xs text-sepia-beige tracking-wider">HS</span>
+      {/* HERO SECTION / ME-TOP */}
+      <section id="hero-display" className="w-full min-h-[90vh] lg:h-screen flex flex-col lg:flex-row border-b-2 border-black relative overflow-hidden">
+        
+        {/* LEFT AREA: TYPOGRAPHIC SPLIT (Initials rotating seal, giant stacked name, spaced clocks) */}
+        <div className="w-full lg:w-1/2 flex flex-col justify-between p-8 md:p-12 pt-28 pb-8 lg:pb-12 border-b-2 lg:border-b-0 lg:border-r-2 border-black bg-[#ffd177]">
+          
+          {/* Top spacer (the header floating navbar stands above, so we just need a tiny alignment or logo placement if needed) */}
+          <div className="h-6"></div>
+
+          {/* Stacked Name Banner */}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="my-auto py-8 space-y-4"
+          >
+            <div className="flex items-baseline flex-wrap gap-x-6 gap-y-4">
+              <h1 className="h1 text-[4.5rem] sm:text-[6rem] md:text-[8rem] lg:text-[6.5rem] xl:text-[8.5rem] leading-[0.75] font-black tracking-tighter">HUSNE</h1>
+              
+              {/* Embedded statement paragraph next to HUSNE */}
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                className="max-w-[260px] border-l-2 border-black pl-4 my-auto"
+              >
+                <p className="font-sans text-xs md:text-sm font-bold leading-normal text-black text-left">
+                  Performing and dialect coaching across major streaming networks like Netflix and Hoichoi, blending 10+ years of theatrical discipline with screen realism.
+                </p>
+              </motion.div>
             </div>
             <div>
-              <h1 id="brand-title" className="font-serif text-lg tracking-[0.25em] font-black text-warm-beige uppercase">
-                Husne Shabnam
-              </h1>
-              <p className="font-mono text-[9px] tracking-widest text-[#F5F5F5]/40 uppercase mt-[2px]">
-                Equity / Cine Artist • Bengali Dialect Specialist
-              </p>
+              <h1 className="h1 text-[4.5rem] sm:text-[6rem] md:text-[8rem] lg:text-[6.5rem] xl:text-[8.5rem] leading-[0.75] font-black tracking-tighter">SHABNAM</h1>
             </div>
-          </div>
+          </motion.div>
 
-          {/* DUAL PILLAR TOGGLE CONTROLLER */}
-          <div id="pillar-toggles" className="flex items-center bg-[#111] p-1 rounded-none border border-warm-beige/10">
-            <button 
-              id="btn-tab-actor"
-              onClick={() => setActiveTab('actor')}
-              className={`px-6 py-2 rounded-none text-[10px] font-mono tracking-widest uppercase transition-all duration-300 flex items-center gap-2 ${
-                activeTab === 'actor' 
-                  ? 'bg-sepia-beige text-ink-black font-bold shadow-md' 
-                  : 'text-warm-beige/60 hover:text-warm-beige hover:bg-warm-beige/5'
-              }`}
-            >
-              <Film className="w-3.5 h-3.5" />
-              The Actor
-            </button>
-            <button 
-              id="btn-tab-coach"
-              onClick={() => setActiveTab('coach')}
-              className={`px-6 py-2 rounded-none text-[10px] font-mono tracking-widest uppercase transition-all duration-300 flex items-center gap-2 ${
-                activeTab === 'coach' 
-                  ? 'bg-sepia-beige text-ink-black font-bold shadow-md' 
-                  : 'text-warm-beige/60 hover:text-warm-beige hover:bg-warm-beige/5'
-              }`}
-            >
-              <Mic className="w-3.5 h-3.5" />
-              Dialect Coach
-            </button>
-          </div>
-        </div>
-      </header>
+          {/* Spaced Info/Clock Bar at the Bottom */}
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+            className="flex flex-wrap justify-between items-center border-t border-black/10 pt-4 mt-6 font-mono text-[9px] md:text-[10.5px] font-black uppercase tracking-widest text-black gap-y-2"
+          >
+            <div>MUMBAI, INDIA</div>
+            <div>{istDate}</div>
+            <div>{istTime} IST / {localTime} LOCAL</div>
+          </motion.div>
 
-      {/* HERO SECTION WITH ARCHETYPE SWITCHER */}
-      <section id="hero-display" className="max-w-7xl mx-auto px-4 md:px-12 pt-12 pb-20 relative overflow-hidden">
-        {/* Massive Background Typography Watermark */}
-        <div className="absolute top-1/2 left-4 -translate-y-1/2 z-0 opacity-5 pointer-events-none select-none">
-          <h1 className="display-bg-name italic text-warm-beige">SHABNAM</h1>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center relative z-10">
+        {/* RIGHT AREA: FULL-HEIGHT PORTRAIT & FLOATING SWITCHER */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.2 }}
+          className="w-full lg:w-1/2 relative min-h-[50vh] lg:min-h-0 bg-[#0e0e0e] overflow-hidden flex group"
+        >
           
-          {/* LEFT COLUMN: INTERACTIVE LOOKBOOK HEADSHOT FRAME */}
-          <div className="lg:col-span-5 flex flex-col items-center">
-            <div id="portrait-wrapper" className="relative group w-full max-w-sm aspect-[3/4] rounded-none overflow-hidden border border-warm-beige/10 shadow-2xl bg-charcoal-medium">
-              
-              {/* IMAGE SHOWCASE */}
-              <AnimatePresence mode="wait">
-                <motion.img 
-                  key={selectedArchetypeIndex}
-                  src={portraitGallery[selectedArchetypeIndex].imagePath}
-                  alt={portraitGallery[selectedArchetypeIndex].title}
-                  referrerPolicy="no-referrer"
-                  initial={{ opacity: 0, scale: 1.02 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.4 }}
-                  className="w-full h-full object-cover grayscale transition-all duration-700"
-                />
-              </AnimatePresence>
+          {/* Full-height image */}
+          <AnimatePresence mode="wait">
+            <motion.img 
+              key={selectedArchetypeIndex}
+              src={portraitGallery[selectedArchetypeIndex].imagePath}
+              alt={portraitGallery[selectedArchetypeIndex].title}
+              referrerPolicy="no-referrer"
+              initial={{ opacity: 0, filter: 'grayscale(100%)' }}
+              animate={{ opacity: 1, filter: 'grayscale(100%)' }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="w-full h-full object-cover lookbook-portrait"
+            />
+          </AnimatePresence>
 
-              {/* OVERLAY BADGE */}
-              <div className="absolute top-4 left-4 bg-ink-black/90 backdrop-blur-md border border-sepia-beige/30 px-3 py-1.5 rounded-none font-mono text-[10px] uppercase tracking-wider text-sepia-beige flex items-center gap-1.5 font-bold">
-                <Sparkles className="w-3 h-3 animate-spin duration-3000 text-sepia-beige" />
-                Archetype: {portraitGallery[selectedArchetypeIndex].category}
-              </div>
+          {/* Archetype category label badge */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+            className="absolute top-6 left-6 bg-black text-[#ffd177] border border-[#ffd177]/20 px-3 py-1.5 font-mono text-[9px] uppercase tracking-wider flex items-center gap-1.5 font-bold shadow-md rounded"
+          >
+            <Sparkles className="w-3 h-3 text-[#ffd177] animate-spin" style={{ animationDuration: '4s' }} />
+            Archetype: {portraitGallery[selectedArchetypeIndex].category}
+          </motion.div>
 
-              {/* BRIEF IMAGE CAPTION */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-ink-black via-ink-black/80 to-transparent p-6 pt-16">
-                <span className="font-mono text-xs text-sepia-beige tracking-wider uppercase font-bold">
-                  {portraitGallery[selectedArchetypeIndex].title}
-                </span>
-                <p className="text-xs text-warm-beige/70 mt-1 line-clamp-2 italic font-serif">
-                  {portraitGallery[selectedArchetypeIndex].description}
-                </p>
-              </div>
+          {/* Floating Archetype Switcher Menu overlay */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/60 backdrop-blur-md border border-white/10 p-2 rounded-full z-10 shadow-lg"
+          >
+            {portraitGallery.map((p, idx) => (
+              <button
+                key={p.category}
+                onClick={() => setSelectedArchetypeIndex(idx)}
+                className={`w-9 h-9 rounded-full overflow-hidden border-2 transition-all relative ${
+                  selectedArchetypeIndex === idx 
+                    ? 'border-[#ffd177] scale-110 shadow-md' 
+                    : 'border-white/25 opacity-60 hover:opacity-100 hover:scale-105'
+                }`}
+                title={`Switch to ${p.title}`}
+              >
+                <img src={p.imagePath} alt={p.category} className="w-full h-full object-cover grayscale" />
+              </button>
+            ))}
+          </motion.div>
+
+          {/* Info Caption overlay on hover/hover gradient */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/50 to-transparent p-6 text-white pt-16 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <span className="font-mono text-[9px] text-[#ffd177] tracking-wider uppercase font-extrabold block">
+              {portraitGallery[selectedArchetypeIndex].title}
+            </span>
+            <p className="text-xs text-white/75 mt-1 leading-relaxed font-serif italic">
+              {portraitGallery[selectedArchetypeIndex].description}
+            </p>
+          </div>
+
+        </motion.div>
+
+      </section>
+
+      {/* CORE INTRO STATEMENT CARD */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 py-10">
+        <div className="border-t-2 border-b-2 border-black/15 py-12">
+          <div className="max-w-5xl">
+            <h3 className="h3 leading-relaxed font-medium">
+              I’m an Indian actor and dialect coach who grew up in Guskara, West Bengal, now living in Mumbai. I bring <span className="font-serif italic font-bold">deep cultural authenticity</span>, physical discipline, and linguistic precision to screen, stage, and streaming productions — caring just as much about subtext and posture as I do about accent phonetics.
+            </h3>
+          </div>
+          <div className="flex flex-wrap gap-4 mt-8">
+            <a href="#coaching-voice" className="px-5 py-3 border border-black hover:bg-[#ffd177] hover:text-black transition-all font-mono text-xs uppercase tracking-widest font-black">
+              Listen to reels
+            </a>
+            <a href="#booking-contact" className="px-5 py-3 bg-[#0e0e0e] hover:bg-[#ffd177] hover:text-black text-[#f5f2eb] transition-all font-mono text-xs uppercase tracking-widest font-black shadow-sm">
+              Book consultation
+            </a>
+            <button 
+              onClick={() => copyToClipboard('husneshabnam.connect@gmail.com', 'hero-copy')}
+              className="px-5 py-3 border border-black/15 bg-black/5 hover:bg-black/10 transition-all font-mono text-xs uppercase tracking-widest font-bold text-black"
+            >
+              {copiedText === 'hero-copy' ? '✓ Copied Address!' : 'Copy Direct Email'}
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION: SCREEN & STAGE HORIZONTAL SCROLLER / ACTING WORK (অভিনয়) */}
+      <section id="acting-timeline" className="bg-[#ffd177] text-black border-t border-b border-black py-16 px-6 md:px-12 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto space-y-6">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-2">
+              <span className="font-mono text-xs text-black/60 uppercase tracking-widest font-bold block">Stage & Screen Record</span>
+              <h2 className="h2 text-black">I act screen & stage</h2>
+            </div>
+          </div>
+
+          <p className="b2 text-black/70 max-w-xl leading-relaxed">
+            Husne’s acting work is rooted in rigorous classical theatre discipline, merging Stanislavskian character studies with physical awareness to deliver realistic performances on screen.
+          </p>
+
+          {/* Acting search filter controls */}
+          <div className="flex flex-wrap items-center gap-3 pt-2 pb-4">
+            <div className="relative flex-1 max-w-xs">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-black/50" />
+              <input 
+                type="text" 
+                placeholder="Search films..."
+                value={actingSearchQuery}
+                onChange={(e) => setActingSearchQuery(e.target.value)}
+                className="w-full bg-[#fff3db]/60 border border-black/30 rounded-full pl-9 pr-4 py-1.5 font-mono text-xs text-black focus:outline-none focus:ring-1 focus:ring-black placeholder:text-black/40"
+              />
             </div>
 
-            {/* SELECTION GALLERY THUMBNAILS - Sizing matches 3:4 Aspect ratio */}
-            <div id="gallery-anchors" className="grid grid-cols-4 gap-2 w-full max-w-sm mt-3">
-              {portraitGallery.map((p, idx) => (
+            <div className="flex items-center bg-black/10 rounded-full p-1 gap-1">
+              {['All', 'Netflix', 'Amazon Prime Video', 'Hoichoi'].map((plat) => (
                 <button
-                  key={p.category}
-                  id={`btn-archetype-${idx}`}
-                  onClick={() => handleArchetypeClick(idx)}
-                  className={`relative aspect-[3/4] rounded-none overflow-hidden border transition-all ${
-                    selectedArchetypeIndex === idx 
-                      ? 'border-sepia-beige ring-2 ring-sepia-beige/40 scale-[1.02]' 
-                      : 'border-white/10 opacity-60 hover:opacity-100'
+                  key={plat}
+                  onClick={() => setActingPlatformFilter(plat)}
+                  className={`px-3 py-1 rounded-full text-[9px] font-mono uppercase tracking-wider transition-all ${
+                    actingPlatformFilter === plat 
+                      ? 'bg-[#0e0e0e] text-white font-bold' 
+                      : 'text-black/60 hover:text-black'
                   }`}
-                  title={`View ${p.title}`}
                 >
-                  <img 
-                    src={p.imagePath} 
-                    alt={p.category} 
-                    referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover grayscale"
-                  />
-                  <div className="absolute inset-0 bg-ink-black/30 flex items-end justify-center pb-1">
-                    <span className="font-mono text-[9px] tracking-tighter uppercase font-bold text-white truncate px-1 text-center bg-black/60 rounded-none w-11/12">
-                      {p.category}
-                    </span>
-                  </div>
+                  {plat === 'Amazon Prime Video' ? 'Prime' : plat}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* RIGHT COLUMN: CORE METADATA & STATEMENT */}
-          <div className="lg:col-span-7 flex flex-col justify-end">
-            <div className="mb-8">
-              <span className="text-sepia-beige text-xs uppercase tracking-[0.35em] font-extrabold block mb-4">
-                {activeTab === 'actor' ? 'Leading Dame | Screen & Stage' : 'Bengali Dialect Coach | Industry Elite'}
-              </span>
-              <h1 className="display-name text-warm-beige">
-                HUSNE<br/><span className="italic font-serif font-black">SHABNAM</span>
-              </h1>
-            </div>
-
-            {/* HIGHLIGHT STICKER CHIPS */}
-            <div className="flex flex-wrap gap-2 pt-1 mb-6">
-              <span className="px-3 py-1.5 rounded-none bg-charcoal-medium border border-warm-beige/10 font-mono text-xs text-warm-beige/85 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-sepia-beige" />
-                Mumbai / West Bengal
-              </span>
-              <span className="px-3 py-1.5 rounded-none bg-charcoal-medium border border-warm-beige/10 font-mono text-xs text-warm-beige/85">
-                10+ Years Theatre Experience
-              </span>
-              <span className="px-3 py-1.5 rounded-none bg-charcoal-medium border border-warm-beige/10 font-mono text-xs text-warm-beige/85">
-                5 Languages
-              </span>
-            </div>
-
-            {/* PHYSICAL AND CASTING FACTS PANEL */}
-            <div id="specs-card" className="bg-charcoal-medium/30 rounded-none p-5 border border-warm-beige/10 grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div>
-                <span className="font-mono text-[10px] uppercase text-warm-beige/40 block">Height</span>
-                <span className="font-serif text-lg font-bold text-white">{personalDetails.height}</span>
+          {/* Horizontally scrolling movie container */}
+          <div 
+            ref={movieSliderRef}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 pt-2 scroll-smooth"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {filteredActorProjects.length === 0 ? (
+              <div className="snap-start shrink-0 w-full border-2 border-black border-dashed rounded-3xl p-12 text-center font-mono text-xs text-black/55 bg-black/5">
+                No matching projects found.
               </div>
-              <div>
-                <span className="font-mono text-[10px] uppercase text-warm-beige/40 block">Weight</span>
-                <span className="font-serif text-lg font-bold text-white">{personalDetails.weight}</span>
-              </div>
-              <div>
-                <span className="font-mono text-[10px] uppercase text-warm-beige/40 block">Casting Age Range</span>
-                <span className="font-serif text-lg font-bold text-white">25 – 35 Years</span>
-              </div>
-              <div>
-                <span className="font-mono text-[10px] uppercase text-warm-beige/40 block font-bold">Speciality Dialect</span>
-                <span className="font-serif text-base font-bold text-sepia-beige">Bengali • East Bengal</span>
-              </div>
-            </div>
+            ) : (
+              filteredActorProjects.map((p, index) => {
+                // Determine custom cover design based on index / platform
+                let coverBg = 'bg-[#b91c1c]'; // Netflix Red
+                let coverGraphic = null;
 
-            <p className="text-base leading-relaxed text-warm-beige/80 mb-8 max-w-xl">
-              {activeTab === 'actor' ? bioSummary.actorProfile : bioSummary.coachProfile}
-            </p>
+                if (p.project.includes('Lust Stories')) {
+                  coverBg = 'bg-[#fda4af]'; // Pink
+                  coverGraphic = (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center animate-[spin_20s_linear_infinite]">
+                        <div className="w-16 h-16 rounded-full border border-white/20 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-white/20" />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                } else if (p.project.includes('Tribhuvan Mishra')) {
+                  coverBg = 'bg-[#b91c1c]'; // Netflix Red
+                  coverGraphic = (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full bg-black/40 flex items-center justify-center border border-white/10 animate-[spin_10s_linear_infinite]">
+                        <div className="w-10 h-10 rounded-full bg-[#ffd177] flex items-center justify-center text-black font-serif font-black text-sm">CA</div>
+                      </div>
+                    </div>
+                  );
+                } else if (p.project.includes('Hero Kaun')) {
+                  coverBg = 'bg-[#0f172a]'; // Slate
+                  coverGraphic = (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full border border-white/20 flex items-center justify-center">
+                        <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center">
+                          <div className="w-16 h-16 rounded-full border border-white/5 flex items-center justify-center">
+                            <span className="font-mono text-white/50 text-xl font-bold">?</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                } else if (p.project.includes('Rocky Aur Rani')) {
+                  coverBg = 'bg-[#d97706]'; // Amber
+                  coverGraphic = (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full border-4 border-[#ffd177] flex items-center justify-center bg-black/20">
+                        <div className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center">
+                          <Sparkles className="w-6 h-6 text-[#ffd177] animate-pulse" />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                } else if (p.project.includes('Brown')) {
+                  coverBg = 'bg-[#78350f]'; // Brown
+                  coverGraphic = (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full bg-black/60 border border-white/20 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-[#78350f]" />
+                      </div>
+                    </div>
+                  );
+                } else if (p.project.includes('Jharokh')) {
+                  coverBg = 'bg-[#475569]'; // Grey
+                  coverGraphic = (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full border border-white/30 flex items-center justify-center">
+                        <div className="w-12 h-12 border-2 border-white/20" />
+                      </div>
+                    </div>
+                  );
+                } else {
+                  coverBg = 'bg-[#ea580c]'; // Hoichoi Orange
+                  coverGraphic = (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-24 h-24 rounded-full border border-white/40 flex items-center justify-center bg-[#ea580c]/60">
+                        <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center">
+                          <div className="w-4 h-4 bg-white rounded-full" />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-              <a 
-                href="#booking-anchor" 
-                className="px-6 py-4 bg-sepia-beige text-ink-black font-bold rounded-none hover:bg-sepia-beige/90 transition-all font-mono text-xs uppercase tracking-widest text-center flex items-center justify-center gap-2"
-              >
-                Request Casting / Consultation
-                <ArrowRight className="w-3.5 h-3.5" />
-              </a>
-              <button 
-                id="btn-copy-email-hero"
-                onClick={() => copyToClipboard('husneshabnam.connect@gmail.com', 'email')}
-                className="px-6 py-4 border border-warm-beige/20 bg-charcoal-medium hover:bg-warm-beige/5 text-warm-beige/90 rounded-none transition-all font-mono text-xs uppercase tracking-widest flex items-center justify-center gap-2"
-              >
-                <ClipboardCopy className="w-3.5 h-3.5" />
-                {copiedText === 'email' ? 'Copied Email Address!' : 'Copy Direct Contact Email'}
-              </button>
-            </div>
+                return (
+                  <div 
+                    key={p.id}
+                    className="snap-start shrink-0 w-72 md:w-80 border-2 border-black bg-[#0e0e0e] text-[#f5f2eb] p-5 rounded-3xl flex flex-col justify-between h-[32rem] relative group hover:scale-[1.01] transition-transform duration-300"
+                  >
+                    <div>
+                      {/* Cover art square */}
+                      <div className={`aspect-square w-full rounded-2xl overflow-hidden relative border border-white/10 ${p.imageUrl ? '' : coverBg}`}>
+                        {p.imageUrl ? (
+                          <img
+                            src={p.imageUrl}
+                            alt={p.project}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            loading="lazy"
+                          />
+                        ) : (
+                          coverGraphic
+                        )}
+                        <div className="absolute bottom-3 left-3 bg-black/65 px-2 py-0.5 rounded text-[8px] font-mono tracking-wider uppercase text-[#ffd177] font-bold">
+                          {p.year}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 space-y-1">
+                        <h4 className="font-serif text-lg font-bold text-white group-hover:text-[#ffd177] transition-colors leading-tight line-clamp-2">
+                          {p.project}
+                        </h4>
+                        <div className="flex justify-between items-center pt-1">
+                          <span className="font-mono text-[10px] text-[#ffd177] uppercase tracking-widest font-black">
+                            {p.platform}
+                          </span>
+                          {p.featured && (
+                            <span className="text-[7.5px] font-mono bg-white/10 text-[#ffd177] border border-[#ffd177]/25 px-1.5 py-0.5 uppercase tracking-wider rounded">
+                              Principal
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="border-t border-white/10 pt-4 mt-4 space-y-1">
+                      <p className="font-sans text-xs text-white/80">
+                        Role: <strong>{p.role}</strong>
+                      </p>
+                      <p className="font-mono text-[9px] text-white/40 uppercase tracking-widest font-bold">
+                        Director: {p.director}
+                      </p>
+                      {p.synopsis && (
+                        <p className="font-sans text-[11px] text-white/50 line-clamp-2 leading-relaxed pt-1 border-t border-white/5 mt-1.5">
+                          {p.synopsis}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Additional matrices */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 border-t border-black/10 pt-8">
+            {otherWorkList.map((item) => (
+              <div key={item.category} className="border border-black bg-[#fff3db] p-5 rounded-2xl shadow-sm">
+                <span className="font-mono text-[9px] text-[#dca63d] uppercase tracking-wider block font-bold">{item.category} Matrix</span>
+                <h5 className="font-serif text-base font-bold text-black mt-1">Acclaimed Format Portfolios</h5>
+                <p className="b2 text-xs mt-2 text-black/75 leading-relaxed">
+                  {item.details}
+                </p>
+              </div>
+            ))}
           </div>
 
         </div>
       </section>
 
-      {/* DWELL PILLAR COMPONENT CONTAINER */}
-      <main id="main-portfolio-content" className="max-w-7xl mx-auto px-4 md:px-12 py-6">
-        <AnimatePresence mode="wait">
+      {/* SECTION: DIALECT COACHING & VOICE REELS (MERGED) */}
+      <section id="coaching-voice" className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-black/10 space-y-16">
+        
+        {/* Main Section Header */}
+        <div className="space-y-4 max-w-3xl">
+          <span className="font-mono text-xs text-[#dca63d] uppercase tracking-widest font-bold block">Voice &amp; Dialect Blueprints</span>
+          <h2 className="h2">I coach dialect &amp; live for voice</h2>
+          <p className="b2 text-black/60 leading-relaxed">
+            Combining phonetic accuracy with performance psychology. From detailed dialect mapping for major streaming networks like Netflix and Hoichoi, to capturing the emotional truth in multilingual voice reels, Husne balances vocal precision with physical embodiment.
+          </p>
+        </div>
+
+        <div className="space-y-16">
           
-          {/* THE ACTOR PILLAR LAYOUT */}
-          {activeTab === 'actor' && (
-            <motion.div
-              key="actor-pillar"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-12"
+          {/* Subsection 1: Dialect Coaching */}
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-black/10 pb-4">
+              <div className="space-y-1">
+                <span className="font-mono text-[10px] text-[#dca63d] uppercase tracking-widest font-bold block">01 / Dialect Coaching Portfolio</span>
+                <h3 className="font-serif text-2xl font-bold">Linguistic Directing</h3>
+              </div>
+              
+              {/* Filter Input */}
+              <div className="relative w-full md:w-72">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-black/45" />
+                <input 
+                  type="text" 
+                  placeholder="Filter coaching projects..."
+                  value={coachSearchQuery}
+                  onChange={(e) => setCoachSearchQuery(e.target.value)}
+                  className="w-full bg-[#fff3db] border border-black/20 rounded-md pl-9 pr-4 py-1.5 font-mono text-xs text-black focus:outline-none focus:ring-1 focus:ring-[#ffd177] focus:border-black placeholder:text-black/35"
+                />
+              </div>
+            </div>
+            
+            {/* Horizontally scrolling coaching container */}
+            <div 
+              ref={coachSliderRef}
+              className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 pt-2 scroll-smooth"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              {/* CORE DETAILS ROW */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                {/* APPROACH AND ETHOS CARD */}
-                <div id="actor-philosophy" className="lg:col-span-2 bg-charcoal-medium p-8 rounded-2xl border border-warm-beige/15 flex flex-col justify-between">
-                  <div className="space-y-4">
-                    <span className="font-mono text-xs text-sepia-beige uppercase tracking-widest block">Acting Methodology</span>
-                    <h3 className="font-serif text-2xl font-bold italic text-white">"A delicate bridge from theatrical roots to streaming realism."</h3>
-                    <p className="text-warm-beige/80 leading-relaxed text-sm">
-                      {bioSummary.actingApproach}
-                    </p>
-                  </div>
-                  
-                  {/* QUOTE STAMP */}
-                  <div className="border-t border-warm-beige/10 pt-6 mt-6 flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-full border border-sepia-beige flex items-center justify-center bg-sepia-beige/10 italic text-sepia-beige font-serif font-semibold text-lg">“</div>
-                    <div>
-                      <p className="font-serif text-sm italic font-medium">"Husne embodies structural control; each step from the Kalaripayattu stance manifests in her vocal stability."</p>
-                      <p className="font-mono text-[9px] text-warm-beige/40 uppercase tracking-widest mt-0.5">— Theatre Critic & Choreographer</p>
-                    </div>
-                  </div>
+              {filteredCoachProjects.length === 0 ? (
+                <div className="snap-start shrink-0 w-full border-2 border-black border-dashed rounded-3xl p-12 text-center font-mono text-xs text-black/55 bg-black/5">
+                  No matching projects found.
                 </div>
-
-                {/* LANGUAGES AND SKILLS CHIPBOARD */}
-                <div id="actor-skillsets" className="bg-charcoal-medium/60 p-8 rounded-2xl border border-warm-beige/10 space-y-6">
-                  <div className="space-y-2">
-                    <span className="font-mono text-xs text-sepia-beige uppercase tracking-widest block">Fluency Matrice</span>
-                    <h4 className="font-serif text-xl font-bold text-white">Vocals & Language Dialects</h4>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {/* LANG LIST */}
-                    <div className="flex flex-wrap gap-1.5 pb-4 border-b border-warm-beige/10">
-                      {personalDetails.languages.map((lang) => (
-                        <span key={lang} className="px-2.5 py-1 bg-ink-black border border-sepia-beige/20 text-sepia-beige font-mono text-[10px] rounded">
-                          {lang} (Fluent)
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* PHYSICAL SPEC SKILLS */}
-                    <div className="space-y-3">
-                      <span className="font-mono text-[10px] text-warm-beige/40 uppercase tracking-wider block">Specialist Training</span>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between items-center bg-ink-black/40 p-2 rounded">
-                          <span className="text-light">Theatre Discipline</span>
-                          <span className="font-mono text-[10px] text-sepia-beige px-2 py-0.5 bg-sepia-beige/5 rounded border border-sepia-beige/10">10+ Years</span>
-                        </div>
-                        <div className="flex justify-between items-center bg-ink-black/40 p-2 rounded">
-                          <span className="text-light">Movement Training</span>
-                          <span className="font-mono text-[10px] text-sepia-beige px-2 py-0.5 bg-sepia-beige/5 rounded border border-sepia-beige/10">Advanced</span>
-                        </div>
-                        <div className="flex justify-between items-center bg-ink-black/40 p-2 rounded">
-                          <span className="text-light">Yoga & Breathwork</span>
-                          <span className="font-mono text-[10px] text-sepia-beige px-2 py-0.5 bg-sepia-beige/5 rounded border border-sepia-beige/10">Advanced</span>
-                        </div>
-                        <div className="flex justify-between items-center bg-ink-black/40 p-2 rounded">
-                          <span className="text-light">Kalaripayattu Martial Arts</span>
-                          <span className="font-mono text-[10px] text-warm-beige/55 px-2 py-0.5 bg-warm-beige/5 rounded border border-warm-beige/10">Beginner</span>
-                        </div>
-                        <div className="flex justify-between items-center bg-ink-black/40 p-2 rounded">
-                          <span className="text-light">Singing Skills</span>
-                          <span className="font-mono text-[10px] text-sepia-beige px-2 py-0.5 bg-sepia-beige/5 rounded border border-sepia-beige/10">Vocalist</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* FILMOGRAPHY FILTER & SEARCH TABLE */}
-              <div id="theatrical-filmography" className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                  <div className="space-y-1">
-                    <span className="font-mono text-xs text-sepia-beige uppercase tracking-widest block">Theatrical Experience</span>
-                    <h3 className="font-serif text-3xl font-bold text-white">Film & Web Series Selected Work</h3>
-                  </div>
-
-                  {/* FILTER CONTROLS */}
-                  <div className="flex flex-wrap items-center gap-3">
-                    {/* Search Field */}
-                    <div className="relative">
-                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-warm-beige/40" />
-                      <input 
-                        type="text" 
-                        placeholder="Search projects, directors..."
-                        value={actingSearchQuery}
-                        onChange={(e) => setActingSearchQuery(e.target.value)}
-                        className="bg-charcoal-medium/80 border border-warm-beige/10 rounded-lg pl-9 pr-4 py-1.5 font-mono text-xs text-white focus:outline-none focus:ring-1 focus:ring-sepia-beige focus:border-sepia-beige w-56 placeholder:text-warm-beige/30"
-                      />
-                    </div>
-
-                    {/* Platform Selector */}
-                    <div className="flex items-center bg-charcoal-medium/80 border border-warm-beige/10 rounded-lg p-1">
-                      {['All', 'Netflix', 'Amazon Prime Video', 'Hoichoi'].map((plat) => (
-                        <button
-                          key={plat}
-                          onClick={() => setActingPlatformFilter(plat)}
-                          className={`px-2.5 py-1 rounded text-[10px] font-mono uppercase tracking-wider transition-all ${
-                            actingPlatformFilter === plat 
-                              ? 'bg-sepia-beige text-ink-black font-semibold' 
-                              : 'text-warm-beige/60 hover:text-white'
-                          }`}
-                        >
-                          {plat === 'Amazon Prime Video' ? 'Prime' : plat}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* THE FILMOGRAPHY TABLE GRID */}
-                <div className="bg-charcoal-medium/30 rounded-2xl border border-warm-beige/10 overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left font-sans text-sm">
-                      <thead>
-                        <tr className="bg-charcoal-medium/80 text-warm-beige/50 border-b border-warm-beige/10 text-xs font-mono tracking-widest uppercase">
-                          <th className="p-4 pl-6">Project Name</th>
-                          <th className="p-4">Role Assigned</th>
-                          <th className="p-4">Director</th>
-                          <th className="p-4">Platform</th>
-                          <th className="p-4 text-right pr-6">Production Year</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-warm-beige/10">
-                        {filteredActorProjects.length === 0 ? (
-                          <tr>
-                            <td colSpan={5} className="p-12 text-center text-warm-beige/40 font-mono text-xs">
-                              No projects matches your filter adjustments. Try clearing query.
-                            </td>
-                          </tr>
-                        ) : (
-                          filteredActorProjects.map((p) => (
-                            <tr key={p.id} className="hover:bg-charcoal-medium/40 transition-all duration-150 group">
-                              <td className="p-4 pl-6 font-serif font-semibold text-white group-hover:text-sepia-beige duration-150">
-                                <div>
-                                  <span>{p.project}</span>
-                                  {p.featured && (
-                                    <span className="ml-2 inline-block px-1.5 py-0.5 rounded bg-sepia-beige/10 border border-sepia-beige/25 text-[8px] font-mono text-sepia-beige align-middle uppercase tracking-wider">
-                                      Principal
-                                    </span>
-                                  )}
-                                </div>
-                                {p.synopsis && (
-                                  <p className="text-xs text-warm-beige/55 mt-1 font-sans font-normal line-clamp-2 max-w-lg">
-                                    {p.synopsis}
-                                  </p>
-                                )}
-                              </td>
-                              <td className="p-4 font-mono text-xs font-medium text-warm-beige/80">
-                                {p.role}
-                              </td>
-                              <td className="p-4 text-warm-beige/70">
-                                {p.director}
-                              </td>
-                              <td className="p-4">
-                                <span className={`inline-block px-2.5 py-1 text-[10px] font-mono rounded tracking-wide ${
-                                  p.platform === 'Netflix' ? 'bg-red-950/40 text-red-400 border border-red-900/30' :
-                                  p.platform === 'Amazon Prime Video' ? 'bg-blue-950/40 text-blue-400 border border-blue-900/30' :
-                                  p.platform === 'Hoichoi' ? 'bg-orange-950/40 text-orange-400 border border-orange-900/30' :
-                                  'bg-zinc-800/60 text-zinc-300'
-                                }`}>
-                                  {p.platform}
-                                </span>
-                              </td>
-                              <td className="p-4 text-right pr-6 font-mono text-xs text-warm-beige/60">
-                                {p.year}
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {/* BRING IN COMMERCIALS & FORMATS */}
-                <div id="commercial-matrix" className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-charcoal-medium/20 rounded-2xl p-6 border border-warm-beige/10">
-                  {otherWorkList.map((item) => (
-                    <div key={item.category} className="space-y-2">
-                      <span className="font-mono text-[10px] text-sepia-beige uppercase tracking-wider block">{item.category} Matrix</span>
-                      <h4 className="font-serif text-lg font-bold text-white">{item.category} & Formats</h4>
-                      <p className="text-sm text-warm-beige/70 leading-relaxed">
-                        {item.details}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-
-            </motion.div>
-          )}
-
-          {/* THE DIALECT COACH PILLAR LAYOUT */}
-          {activeTab === 'coach' && (
-            <motion.div
-              key="coach-pillar"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-12"
-            >
-              {/* TOP PROFILE INTRO */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                {/* METHOD AND APPROACH */}
-                <div id="coach-mindset" className="lg:col-span-2 bg-charcoal-medium p-8 rounded-2xl border border-warm-beige/15 flex flex-col justify-between space-y-6">
-                  <div className="space-y-4">
-                    <span className="font-mono text-xs text-sepia-beige uppercase tracking-widest block">Linguistic Coaching Architecture</span>
-                    <h3 className="font-serif text-3xl font-bold text-white">"Authenticity is not just about phonetics; it represents deep posture and memory."</h3>
-                    <p className="text-warm-beige/85 leading-relaxed text-sm">
-                      {bioSummary.coachApproach}
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-warm-beige/10 pt-6">
-                    <div className="space-y-1">
-                      <span className="font-mono text-[9px] uppercase text-sepia-beige block">Linguistic Core</span>
-                      <p className="text-xs text-warm-beige/75">Native Bengali + specialized Bangladeshi dialects and phonetic alignment blueprints.</p>
-                    </div>
-                    <div className="space-y-1">
-                      <span className="font-mono text-[9px] uppercase text-sepia-beige block">Coaching Method</span>
-                      <p className="text-xs text-warm-beige/75">Integrating actor script mapping (pitch contours & vowel modification) with Stanislavskian character goals.</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* THE STAR-STUDDED COACHING HIGHLIGHT */}
-                <div id="coaching-highlights" className="bg-sepia-beige p-8 rounded-2xl text-ink-black flex flex-col justify-between space-y-6">
-                  <div className="space-y-3">
-                    <div className="h-7 w-7 rounded bg-black/10 flex items-center justify-center font-mono font-black text-xs">★</div>
-                    <span className="font-mono text-[10px] uppercase font-black tracking-widest text-ink-black/60 block">Industry Showcase</span>
-                    <h4 className="font-serif text-2xl font-black leading-tight">Master Coaching for Indian Cinema Elite</h4>
-                    <p className="text-xs text-ink-black/80 font-medium leading-relaxed mt-2">
-                      Trusted by A-list legendary directors like <strong>Karan Johar</strong>, <strong>Abhinay Deo</strong>, and <strong>Nikkhil Advani</strong> to coach superstars.
-                    </p>
-                  </div>
-
-                  {/* MINI STAR ROSTER */}
-                  <div className="space-y-2 border-t border-ink-black/15 pt-4">
-                    <p className="font-mono text-[9px] uppercase font-black text-ink-black/50 tracking-wider">Acclaimed Cast List Coached:</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {["Alia Bhatt", "Amitabh Bachchan", "Shabana Azmi", "Karisma Kapoor", "Bhuvan Bam"].map((star) => (
-                        <span key={star} className="px-2 py-0.5 rounded bg-ink-black text-warm-beige font-mono text-[9px] font-semibold tracking-wider">
-                          {star}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              {/* SEARCHABLE DIALECT EXPERIENCE RECORD */}
-              <div id="coaching-history" className="space-y-6">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-                  <div className="space-y-1">
-                    <span className="font-mono text-xs text-sepia-beige uppercase tracking-widest block">Linguistic Blueprints</span>
-                    <h3 className="font-serif text-3xl font-bold text-white">Auteur Screen Coach Record</h3>
-                  </div>
-
-                  {/* QUICK SEARCH FOR COACHING RECORD */}
-                  <div className="relative">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-warm-beige/40" />
-                    <input 
-                      type="text" 
-                      placeholder="Search coached actors, projects, etc..."
-                      value={coachSearchQuery}
-                      onChange={(e) => setCoachSearchQuery(e.target.value)}
-                      className="bg-charcoal-medium/80 border border-warm-beige/10 rounded-lg pl-9 pr-4 py-1.5 font-mono text-xs text-white focus:outline-none focus:ring-1 focus:ring-sepia-beige focus:border-sepia-beige w-64 placeholder:text-warm-beige/30"
-                    />
-                  </div>
-                </div>
-
-                {/* THE COACHING GRID SHOWCASE */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredCoachProjects.length === 0 ? (
-                    <div className="col-span-full bg-charcoal-medium/10 border border-warm-beige/5 rounded-2xl p-12 text-center text-warm-beige/40 font-mono text-xs">
-                      No matching projects. Try adjust search.
-                    </div>
-                  ) : (
-                    filteredCoachProjects.map((p) => (
-                      <div 
-                        key={p.id} 
-                        className="bg-charcoal-medium/40 border border-warm-beige/10 rounded-xl p-6 flex flex-col justify-between hover:border-sepia-beige/40 duration-300 group"
-                      >
-                        <div className="space-y-4">
-                          <div className="flex justify-between items-start">
-                            <span className="font-mono text-[10px] text-sepia-beige px-2 py-0.5 rounded bg-sepia-beige/5 border border-sepia-beige/10">
-                              {p.dialectNotes}
-                            </span>
-                            <span className="font-mono text-xs text-warm-beige/40">{p.year !== '—' ? p.year : 'Upcoming'}</span>
+              ) : (
+                filteredCoachProjects.map((p) => (
+                  <div 
+                    key={p.id}
+                    className="snap-start shrink-0 w-80 md:w-[28rem] border-2 border-black bg-[#0e0e0e] text-[#f5f2eb] p-6 rounded-3xl flex flex-col justify-between hover:scale-[1.01] duration-300 group"
+                  >
+                    <div className="flex flex-col justify-between h-full gap-4">
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-4">
+                          {/* Logo container */}
+                          <div className="w-12 h-12 bg-[#ffd177] text-black shrink-0 flex items-center justify-center font-mono font-black text-xs rounded-xl">
+                            <Mic className="w-5 h-5" />
                           </div>
-
                           <div className="space-y-1">
-                            <h4 className="font-serif text-xl font-bold text-white group-hover:text-sepia-beige duration-150">
-                              {p.project}
-                            </h4>
-                            <p className="font-mono text-[10.5px] text-warm-beige/40 uppercase tracking-wider">
-                              Director: {p.director !== '—' ? p.director : 'TBA'} • Studio: {p.producerStudio !== '—' ? p.producerStudio : 'Independent'}
+                            <h4 className="font-serif text-lg font-bold text-white group-hover:text-[#ffd177] transition-colors leading-tight">{p.project}</h4>
+                            <p className="font-mono text-[10px] text-white/40 uppercase tracking-widest font-bold">
+                              Director: {p.director} • Studio: {p.producerStudio}
                             </p>
                           </div>
-
-                          {/* ACTORS LIST HIGHLIGHT */}
-                          <div className="bg-ink-black/40 p-3 rounded-lg space-y-1.5">
-                            <span className="font-mono text-[9px] uppercase tracking-wider text-warm-beige/40">Coached Actors Highlight:</span>
-                            <div className="flex flex-wrap gap-1">
-                              {p.actorsCoached.map((act) => (
-                                <span key={act} className="px-1.5 py-0.5 rounded bg-charcoal-medium border border-warm-beige/10 font-mono text-[9px] text-white">
-                                  {act}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
                         </div>
 
-                        {/* BRIEF TESTIMONIAL OR DETAILS IF EXISTS */}
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                          <span className="font-mono text-[9px] text-white/50 uppercase font-bold mr-1">Coached:</span>
+                          {p.actorsCoached.map((act) => (
+                            <span key={act} className="px-1.5 py-0.5 bg-white/10 border border-white/10 rounded font-mono text-[9px] text-white">
+                              {act}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="border-t border-white/10 pt-4 flex flex-col justify-between gap-3">
+                        <div className="flex items-center justify-between gap-1.5">
+                          <span className="px-2 py-0.5 bg-[#ffd177] text-black border border-black font-mono text-[9px] uppercase tracking-wider font-extrabold rounded">
+                            {p.dialectNotes}
+                          </span>
+                          <span className="font-mono text-xs text-white/60 font-bold block">{p.year}</span>
+                        </div>
+
                         {p.testimonial && (
-                          <div className="border-t border-warm-beige/5 pt-4 mt-4 font-serif italic text-xs text-warm-beige/65 leading-relaxed">
+                          <p className="font-serif italic text-xs text-white/70 leading-relaxed pl-3 border-l-2 border-[#ffd177] line-clamp-3">
                             "{p.testimonial}"
-                          </div>
+                          </p>
                         )}
                       </div>
-                    ))
-                  )}
-                </div>
-
-                {/* AIIS PARTNER CARD */}
-                <div id="aiis-partner-section" className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-charcoal-medium/20 rounded-2xl p-8 border border-warm-beige/10 items-center">
-                  <div className="lg:col-span-4 space-y-2">
-                    <span className="font-mono text-[10px] text-sepia-beige uppercase tracking-wider block">Academic Foundation</span>
-                    <h4 className="font-serif text-2xl font-bold text-white">
-                      {AIISPartner.institution}
-                    </h4>
-                    <p className="font-mono text-xs text-sepia-beige">{AIISPartner.period} • {AIISPartner.role}</p>
-                  </div>
-                  <div className="lg:col-span-8">
-                    <ul className="space-y-2.5 text-sm text-warm-beige/85">
-                      {AIISPartner.details.map((detail, idx) => (
-                        <li key={idx} className="flex items-start gap-2.5">
-                          <CheckCircle className="w-4 h-4 text-sepia-beige shrink-0 mt-0.5" />
-                          <span>{detail}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-              </div>
-
-            </motion.div>
-          )}
-
-        </AnimatePresence>
-      </main>
-
-      {/* INTERACTIVE VOICE REEL DUBBING PLAYER MODULE */}
-      <section id="audio-visualizers" className="max-w-7xl mx-auto px-4 md:px-12 py-12">
-        <div className="bg-gradient-to-br from-charcoal-medium to-ink-black rounded-3xl border border-warm-beige/15 p-6 md:p-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            {/* LEFT AREA: PLAYER TRACK CONTROL PANEL */}
-            <div className="lg:col-span-5 space-y-6">
-              <div className="space-y-1">
-                <span className="font-mono text-xs text-sepia-beige tracking-widest uppercase flex items-center gap-2">
-                  <Mic className="w-4 h-4 text-sepia-beige" />
-                  VOICE & MULTILINGUAL REEL
-                </span>
-                <h3 className="font-serif text-3xl font-extrabold text-white">
-                  Linguistic Vocal Range
-                </h3>
-                <p className="text-sm text-warm-beige/60">
-                  Multilingual dubbing (English, Hindi, Bengali) with expert modulations. Play below to listen.
-                </p>
-              </div>
-
-              {/* LIST OF TRACKS */}
-              <div id="reels-tracklist" className="space-y-2">
-                {voiceReels.map((reel, rIdx) => (
-                  <button
-                    key={reel.id}
-                    onClick={() => {
-                      setActiveReelIndex(rIdx);
-                      setIsPlaying(false);
-                    }}
-                    className={`w-full text-left p-3.5 rounded-xl border transition-all flex items-center justify-between gap-3 ${
-                      activeReelIndex === rIdx 
-                        ? 'bg-sepia-beige/12 border-sepia-beige/40 shadow-inner' 
-                        : 'bg-ink-black/40 border-warm-beige/5 hover:border-warm-beige/20 hover:bg-charcoal-medium/50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`h-8 w-8 rounded-lg flex items-center justify-center font-mono text-xs ${
-                        activeReelIndex === rIdx 
-                          ? 'bg-sepia-beige text-ink-black font-semibold' 
-                          : 'bg-charcoal-medium text-warm-beige/50'
-                      }`}>
-                        {rIdx + 1}
-                      </div>
-                      <div>
-                        <h4 className={`font-serif text-sm ${activeReelIndex === rIdx ? 'text-sepia-beige font-bold' : 'text-white'}`}>
-                          {reel.title}
-                        </h4>
-                        <p className="font-sans text-[11px] text-warm-beige/40">{reel.accent}</p>
-                      </div>
                     </div>
-                    <span className="font-mono text-xs text-warm-beige/40">{reel.duration}</span>
-                  </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* AIIS Academic Partner banner */}
+            <div className="border-2 border-black bg-[#fff3db] p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 rounded-3xl">
+              <div className="space-y-2">
+                <span className="font-mono text-[10px] text-[#dca63d] uppercase tracking-wider font-bold block">Academic Pillar</span>
+                <h4 className="font-serif text-xl font-bold text-black">{AIISPartner.institution}</h4>
+                <p className="font-mono text-xs text-black/60">{AIISPartner.period} • {AIISPartner.role}</p>
+              </div>
+              <ul className="space-y-1.5 text-xs text-black/85 max-w-md">
+                {AIISPartner.details.map((detail, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <CheckCircle className="w-3.5 h-3.5 text-[#dca63d] shrink-0 mt-0.5" />
+                    <span>{detail}</span>
+                  </li>
                 ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Subsection 2: Voice Reels */}
+          <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-black/10 pb-4">
+              <div className="space-y-1">
+                <span className="font-mono text-[10px] text-[#dca63d] uppercase tracking-widest font-bold block">02 / Vocal Range Showcase</span>
+                <h3 className="font-serif text-2xl font-bold">Voice Reels Playlist</h3>
               </div>
             </div>
 
-            {/* RIGHT AREA: THE IMPOSSIBLY BEAUTIFUL GRAPHIC WAVEFORM & CONTROLS */}
-            <div className="lg:col-span-7 bg-ink-black/60 rounded-2xl border border-warm-beige/10 p-6 md:p-8 space-y-6">
+            {/* Horizontally scrolling swiper containers */}
+            <div 
+              ref={sliderRef}
+              className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-6 pt-2 scroll-smooth"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {voiceReels.map((reel, index) => (
+                <div 
+                  key={reel.id}
+                  onClick={() => {
+                    setActiveReelIndex(index);
+                    setIsPlaying(false);
+                  }}
+                  className={`snap-start shrink-0 w-72 md:w-80 border-2 cursor-pointer p-6 flex flex-col justify-between h-96 relative group transition-all duration-300 ${
+                    activeReelIndex === index 
+                      ? 'border-black bg-[#ffd177] text-black shadow-md scale-[1.01]' 
+                      : 'border-black bg-[#0e0e0e] text-[#f5f2eb] hover:bg-[#0e0e0e]/95'
+                  }`}
+                >
+                  {/* Decorative record ring */}
+                  <div className={`absolute top-6 right-6 w-16 h-16 border rounded-full flex items-center justify-center group-hover:rotate-45 transition-transform duration-700 ${
+                    activeReelIndex === index ? 'border-black/15 bg-black/5' : 'border-white/10 bg-white/5'
+                  }`}>
+                    <Mic className={`w-5 h-5 ${activeReelIndex === index ? 'text-black/30' : 'text-white/20'}`} />
+                  </div>
+
+                  <div className="space-y-4 pr-16">
+                    <span className={`font-mono text-[10px] uppercase tracking-widest block font-bold ${
+                      activeReelIndex === index ? 'text-black/55' : 'text-white/40'
+                    }`}>
+                      TRACK {index + 1}
+                    </span>
+                    <h4 className={`font-serif text-xl font-bold leading-tight transition-colors ${
+                      activeReelIndex === index ? 'text-black' : 'text-white group-hover:text-[#ffd177]'
+                    }`}>
+                      {reel.title}
+                    </h4>
+                    <p className={`font-sans text-xs line-clamp-3 leading-relaxed ${
+                      activeReelIndex === index ? 'text-black/80' : 'text-white/60'
+                    }`}>
+                      {reel.description}
+                    </p>
+                  </div>
+
+                  <div className={`border-t pt-4 flex justify-between items-center ${
+                    activeReelIndex === index ? 'border-black/10' : 'border-white/10'
+                  }`}>
+                    <div>
+                      <span className={`font-mono text-[9px] uppercase tracking-wider block ${
+                        activeReelIndex === index ? 'text-black/55' : 'text-white/40'
+                      }`}>ACCENT LILT</span>
+                      <span className={`font-sans text-xs font-bold ${
+                        activeReelIndex === index ? 'text-black' : 'text-white'
+                      }`}>{reel.accent}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className={`font-mono text-xs ${
+                        activeReelIndex === index ? 'text-black/75' : 'text-white/55'
+                      }`}>{reel.duration}</span>
+                      {activeReelIndex === index && isPlaying ? (
+                        <span className="w-2.5 h-2.5 bg-black rounded-full animate-ping" />
+                      ) : (
+                        <div className={`w-6 h-6 border rounded-full flex items-center justify-center text-[10px] ${
+                          activeReelIndex === index ? 'border-black text-black' : 'border-white text-white'
+                        }`}>▶</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* The visual player dashboard */}
+            <div className="border-2 border-black p-6 bg-[#0e0e0e] text-[#f5f2eb] flex flex-col lg:flex-row items-center justify-between gap-6 rounded-3xl">
               
-              {/* CURRENT SELECTED REEL DETAIL */}
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-warm-beige/15 pb-6">
-                <div>
-                  <span className="font-mono text-[9px] uppercase tracking-widest text-sepia-beige">Active Dubbing Reel</span>
-                  <h4 className="font-serif text-xl font-bold text-white mt-1">
-                    {voiceReels[activeReelIndex].title}
-                  </h4>
-                  <p className="text-xs text-warm-beige/70 mt-1 max-w-md">
-                    {voiceReels[activeReelIndex].description}
-                  </p>
-                </div>
-                <div className="shrink-0 flex items-center gap-2">
-                  <span className="px-2.5 py-1 bg-sepia-beige/10 border border-sepia-beige/30 text-sepia-beige font-mono text-[10px] rounded uppercase font-semibold">
-                    {voiceReels[activeReelIndex].accent}
-                  </span>
-                </div>
+              {/* Player details */}
+              <div className="space-y-1 w-full lg:w-96 shrink-0 text-left">
+                <span className="font-mono text-[9px] text-[#ffd177] uppercase tracking-widest font-black block">Active Dubbing Tape</span>
+                <h4 className="font-serif text-lg font-bold text-white leading-tight">
+                  {voiceReels[activeReelIndex].title}
+                </h4>
+                <p className="font-sans text-xs text-white/70">
+                  Accent: <strong>{voiceReels[activeReelIndex].accent}</strong>
+                </p>
               </div>
 
-              {/* SIMULATED AUDIO PULSE WAVEFORM CANVAS */}
-              <div className="space-y-2">
-                <div className="h-28 bg-charcoal-medium/30 rounded-xl border border-warm-beige/5 flex items-end justify-between p-4 px-6 gap-1 relative overflow-hidden">
-                  
-                  {/* Backdrop glowing visual */}
-                  <div className={`absolute inset-0 bg-sepia-beige/3 transition-all duration-1000 blur-md pointer-events-none ${isPlaying ? 'scale-110 opacity-100' : 'scale-95 opacity-30'}`} />
-
-                  {/* Waveform Bars */}
-                  {waveformBars.map((bHeight, index) => {
-                    const isPassed = (index / waveformBars.length) < (playbackSeconds / parseDurationToSeconds(voiceReels[activeReelIndex].duration));
+              {/* Custom visualizer waveform */}
+              <div className="w-full flex-1 space-y-2">
+                <div className="h-16 bg-white/5 border border-white/10 flex items-end justify-between p-3 gap-0.5 relative overflow-hidden rounded-xl">
+                  <div className="absolute inset-0 bg-[#ffd177]/5 pointer-events-none" />
+                  {waveformBars.map((bHeight, idx) => {
+                    const isPassed = (idx / waveformBars.length) < (playbackSeconds / parseDurationToSeconds(voiceReels[activeReelIndex].duration));
                     return (
                       <div 
-                        key={index} 
-                        className={`w-full max-w-[8px] rounded-full transition-all duration-300 ${
+                        key={idx}
+                        className={`w-full max-w-[6px] rounded-full transition-all duration-300 ${
                           isPlaying 
-                            ? isPassed ? 'bg-sepia-beige shadow-inner' : 'bg-sepia-beige/20'
-                            : 'bg-warm-beige/25'
+                            ? isPassed ? 'bg-[#ffd177]' : 'bg-white/10'
+                            : 'bg-white/20'
                         }`}
-                        style={{ height: `${bHeight}%`, minHeight: '6px' }}
+                        style={{ height: `${bHeight}%`, minHeight: '4px' }}
                       />
                     );
                   })}
                 </div>
 
-                {/* TIMELINE TIMER TEXTS */}
-                <div className="flex justify-between items-center px-1">
-                  <span className="font-mono text-[10px] text-sepia-beige">{formatSeconds(playbackSeconds)}</span>
-                  <div className="flex items-center gap-1 font-mono text-[8px] tracking-widest text-warm-beige/30 uppercase">
-                    {isPlaying && <span className="h-1.5 w-1.5 bg-red-600 rounded-full animate-ping inline-block" />}
-                    {isPlaying ? 'ACTIVE MODULATION DECODE' : 'STANDBY AUDITION'}
-                  </div>
-                  <span className="font-mono text-[10px] text-warm-beige/40">{voiceReels[activeReelIndex].duration}</span>
+                {/* Time display */}
+                <div className="flex justify-between items-center text-xs font-mono text-white/50 px-1">
+                  <span>{formatSeconds(playbackSeconds)}</span>
+                  <span className="text-[8px] uppercase tracking-widest font-bold text-[#ffd177]">
+                    {isPlaying ? '▶ DECIBEL DECODER MODULATING' : '■ TRACK STANDBY'}
+                  </span>
+                  <span>{voiceReels[activeReelIndex].duration}</span>
                 </div>
               </div>
 
-              {/* CONSOLE CONTROLS row */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-5 bg-charcoal-medium/40 p-4 rounded-xl border border-warm-beige/5">
+              {/* Player controls */}
+              <div className="flex items-center gap-4 shrink-0 w-full lg:w-auto justify-between lg:justify-end border-t lg:border-t-0 border-white/10 pt-4 lg:pt-0">
                 
-                {/* Play, Next buttons */}
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => {
-                      if (playbackSeconds === 0 && !isPlaying) {
-                        setPlaybackSeconds(1); // initiate timer
-                      }
-                      setIsPlaying(!isPlaying);
-                    }}
-                    className={`h-11 w-11 rounded-full flex items-center justify-center transition-all ${
-                      isPlaying 
-                        ? 'bg-red-600 text-white hover:bg-red-700' 
-                        : 'bg-sepia-beige text-ink-black hover:bg-sepia-beige/90 scale-102 font-bold shadow'
-                    }`}
-                    title={isPlaying ? "Pause Demo Simulation" : "Play Demo Simulation"}
-                  >
-                    {isPlaying ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-ink-black ml-0.5" />}
-                  </button>
+                {/* Play button */}
+                <button 
+                  onClick={() => {
+                    if (playbackSeconds === 0 && !isPlaying) {
+                      setPlaybackSeconds(1);
+                    }
+                    setIsPlaying(!isPlaying);
+                  }}
+                  className={`w-12 h-12 rounded-full border border-black flex items-center justify-center transition-all ${
+                    isPlaying 
+                      ? 'bg-red-600 text-white hover:bg-red-700' 
+                      : 'bg-[#ffd177] hover:bg-[#ffd177]/80 text-black'
+                  }`}
+                  title={isPlaying ? "Pause Tape" : "Play Tape"}
+                >
+                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5 fill-black" />}
+                </button>
 
-                  <button
-                    onClick={() => {
-                      setActiveReelIndex((prev) => (prev + 1) % voiceReels.length);
-                    }}
-                    className="h-9 px-4 rounded-lg bg-墨 border border-warm-beige/10 text-xs font-mono tracking-widest uppercase hover:bg-warm-beige/5 text-warm-beige/80 transition-all"
-                  >
-                    Nxt Demo Reel
-                  </button>
-                </div>
-
-                {/* Simulated Volume bar */}
-                <div className="flex items-center gap-3 w-full sm:w-auto">
-                  <button
+                {/* Volume sliders */}
+                <div className="flex items-center gap-2">
+                  <button 
                     onClick={() => setIsMuted(!isMuted)}
-                    className="text-warm-beige/60 hover:text-white transition-colors"
+                    className="text-black/60 hover:text-black"
                   >
-                    {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4" />}
+                    {isMuted ? <VolumeX className="w-4 h-4 text-red-500" /> : <Volume2 className="w-4 h-4" />}
                   </button>
-                  <div className="relative w-28 h-1 bg-warm-beige/10 rounded-full overflow-hidden">
+                  <div className="relative w-24 h-1 bg-black/15 rounded-full overflow-hidden">
                     <div 
-                      className={`h-full ${isMuted ? 'bg-red-900/50' : 'bg-sepia-beige'}`} 
-                      style={{ width: isMuted ? '0%' : `${playbackVolume}%` }} 
+                      className={`h-full ${isMuted ? 'bg-red-500' : 'bg-black'}`}
+                      style={{ width: isMuted ? '0%' : `${playbackVolume}%` }}
                     />
                     <input 
                       type="range"
@@ -959,253 +965,305 @@ export default function App() {
                       value={isMuted ? 0 : playbackVolume}
                       onChange={(e) => {
                         setPlaybackVolume(Number(e.target.value));
-                        if(isMuted) setIsMuted(false);
+                        if (isMuted) setIsMuted(false);
                       }}
                       className="absolute inset-0 opacity-0 cursor-pointer w-full"
                     />
                   </div>
-                  <span className="font-mono text-[9px] text-warm-beige/50 w-7 text-right">
-                    {isMuted ? 'Muted' : `${playbackVolume}%`}
+                  <span className="font-mono text-[9px] text-black/50 w-6 text-right">
+                    {isMuted ? 'M' : `${playbackVolume}%`}
                   </span>
                 </div>
 
               </div>
 
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* PORTFOLIO LOOKBOOK GALLERY */}
-      <section id="full-lookbook" className="max-w-7xl mx-auto px-4 md:px-12 py-10 space-y-6">
-        <div className="space-y-1">
-          <span className="font-mono text-xs text-sepia-beige tracking-widest uppercase block">Portfolio Artifacts</span>
-          <h3 className="font-serif text-3xl font-extrabold text-white">Full Archetype Gallery lookbook</h3>
-          <p className="text-sm text-warm-beige/60 max-w-xl">
-            A diverse range of casting look representations covering historical themes, athletic posture controls, modern theatrical, and professional styling.
-          </p>
-        </div>
-
-        {/* LOOKBOOK IMAGES GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {portraitGallery.map((gi, index) => (
-            <div 
-              key={gi.title}
-              onClick={() => handleArchetypeClick(index)}
-              className={`bg-charcoal-medium/50 border rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 group ${
-                selectedArchetypeIndex === index 
-                  ? 'border-sepia-beige ring-2 ring-sepia-beige/30' 
-                  : 'border-warm-beige/10 hover:border-warm-beige/25 hover:-translate-y-1'
-              }`}
-            >
-              <div className="aspect-[3/4] overflow-hidden relative">
-                <img 
-                  src={gi.imagePath} 
-                  alt={gi.title}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" 
-                />
-                <div className="absolute top-3 left-3 bg-ink-black/85 border border-warm-beige/10 px-2 py-0.5 rounded text-[9px] font-mono tracking-wider uppercase text-sepia-beige">
-                  {gi.category}
-                </div>
-              </div>
-              <div className="p-4 space-y-1">
-                <h4 className="font-serif text-sm font-semibold text-white group-hover:text-sepia-beige duration-250">
-                  {gi.title}
-                </h4>
-                <p className="text-[11px] text-warm-beige/50 line-clamp-2">
-                  {gi.description}
-                </p>
-              </div>
+      {/* SECTION: MOVEMENT & SKILLS / GAME GRID (শরীর) */}
+      <section id="skills-game-grid" className="max-w-7xl mx-auto px-6 md:px-12 py-12 border-t border-black/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Column 1: Header + Bengali Label */}
+          <div className="lg:col-span-4 lg:sticky lg:top-24">
+            <div className="space-y-2">
+              <span className="font-mono text-xs text-[#dca63d] uppercase tracking-widest font-bold block">Artistry Flow</span>
+              <h2 className="h2">Movement &amp; skills</h2>
             </div>
-          ))}
+            <p className="b2 mt-4 max-w-sm text-black/60 font-sans">
+              Husne’s extensive movement routines, classical vocal singing training, and physical body disciplines represent the foundational craft she applies to character embodyment.
+            </p>
+          </div>
+
+          {/* Column 2: Game card grid covers */}
+          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {skillsList.map((skill, idx) => (
+              <motion.div 
+                key={skill.name}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: idx * 0.08, ease: "easeOut" }}
+                whileHover={{ y: -8 }}
+                className="border-2 border-black bg-[#0e0e0e] text-[#f5f2eb] flex flex-col justify-between h-72 p-5 hover:shadow-lg transition-shadow duration-300 group rounded-3xl cursor-pointer"
+              >
+                {/* Visual cartridge cover graphic */}
+                <div className="h-28 border-2 border-white/10 bg-white/5 flex flex-col justify-between p-3 relative overflow-hidden rounded-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-[#ffd177]/5 to-transparent pointer-events-none" />
+                  <div className="flex justify-between items-start">
+                    <span className="font-mono text-[8px] bg-[#ffd177] text-black px-1.5 py-0.5 rounded font-black tracking-widest uppercase">
+                      SKILL {idx + 1}
+                    </span>
+                    <span className="font-mono text-[9px] text-white/45 font-bold uppercase">{skill.category}</span>
+                  </div>
+                  <div className="font-serif font-black text-2xl text-white/5 uppercase select-none leading-none">
+                    CRAFT
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 pt-4">
+                  <h4 className="font-serif text-base font-black text-white group-hover:text-[#ffd177] leading-tight transition-colors">
+                    {skill.name}
+                  </h4>
+                  <p className="font-mono text-[9px] text-white/40 uppercase tracking-widest font-bold">
+                    Discipline Profile
+                  </p>
+                </div>
+
+                <div className="border-t-2 border-white/10 pt-3 mt-3 flex justify-between items-center">
+                  <span className="font-mono text-[9px] uppercase tracking-wider text-[#f5f2eb]/45">VERIFIED LEVEL</span>
+                  <span className="px-2 py-0.5 bg-[#ffd177] text-black border-2 border-black font-mono text-[9px] font-bold uppercase rounded-lg">
+                    {skill.level}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
         </div>
       </section>
 
-      {/* INTERACTIVE BOOKING DESK & CONTACT ROW */}
-      <section id="booking-anchor" className="max-w-7xl mx-auto px-4 md:px-12 py-12">
+      {/* SECTION: Q&A / INTERVIEW (প্রশ্নোত্তর) */}
+      <section className="max-w-7xl mx-auto px-6 md:px-12 py-12 border-t border-black/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Column 1: Header */}
+          <div className="lg:col-span-4 lg:sticky lg:top-24">
+            <div className="space-y-2">
+              <span className="font-mono text-xs text-[#dca63d] uppercase tracking-widest font-bold block">Interview Dialogues</span>
+              <h2 className="h2">Actor Q&amp;A session</h2>
+            </div>
+            <p className="b2 mt-4 max-w-sm text-black/60 font-sans leading-relaxed font-medium">
+              Diving deep into the creative approach, rehearsal rituals, and off-camera lifestyle. Click on the direct booking matrix to consult.
+            </p>
+          </div>
+
+          {/* Column 2: Typographic Interview rows */}
+          <div className="lg:col-span-8 space-y-6">
+            
+            <div className="border-2 border-black bg-[#fff3db] p-6 space-y-3 rounded-3xl shadow-sm">
+              <h4 className="b1 text-black font-black">Q: What makes a good actor, in your opinion?</h4>
+              <p className="b2 leading-relaxed text-black/80 font-medium">
+                I believe a good actor understands the absolute truth, the core purpose, and the cultural landscape of the character they portray. The performance can be highly stylized, but if it lacks emotional honesty and physical grounding, it fails to connect with the audience.
+              </p>
+            </div>
+
+            <div className="border-2 border-black bg-[#fff3db] p-6 space-y-3 rounded-3xl shadow-sm">
+              <h4 className="b1 text-black font-black">Q: How do you prepare for a dialect coaching contract?</h4>
+              <p className="b2 leading-relaxed text-black/80 font-medium">
+                My preparation is deeply phonetic and performative. I map out accent contours, syllable values, and vowel changes directly onto the scripts. But more importantly, I work with the actor on character psychology: understanding where the sound comes from physically and culturally in the body.
+              </p>
+            </div>
+
+            <div className="border-2 border-black bg-[#fff3db] p-6 space-y-3 rounded-3xl shadow-sm">
+              <h4 className="b1 text-black font-black">Q: What is your lifestyle like off-set?</h4>
+              <p className="b2 leading-relaxed text-black/80 font-medium">
+                I maintain a highly disciplined, structured lifestyle. You will see me sweating at movement classes, practicing Yoga &amp; Pranayama breathing patterns, cooking native regional recipes, or listening to dialect tapes to study speech structures. Continuous training is crucial for keeping the instrument ready.
+              </p>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      {/* SECTION: CONTACT HOTLINE & BOOKING FORM (যোগাযোগ) */}
+      <section id="booking-contact" className="max-w-7xl mx-auto px-6 md:px-12 py-12 border-t border-black/10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
-          {/* THE CONTACT BOARD (Left) */}
-          <div className="lg:col-span-5 bg-charcoal-medium p-8 rounded-3xl border border-warm-beige/15 flex flex-col justify-between space-y-8">
+          {/* Left panel: Info desk */}
+          <div className="lg:col-span-5 border-2 border-black bg-[#fff3db] p-8 flex flex-col justify-between space-y-8 rounded-3xl shadow-sm">
             <div className="space-y-6">
-              <div className="space-y-1">
-                <span className="font-mono text-xs text-sepia-beige tracking-widest uppercase block">Direct Line</span>
-                <h3 className="font-serif text-3xl font-extrabold text-white">Representative & Booking Desk</h3>
-                <p className="text-sm text-warm-beige/60">
-                  Reach out directly to schedule acting auditions, dubbing contracts, theatrical dialect coaching scripts, or casting inquiries.
-                </p>
+              <div className="space-y-2">
+                <span className="font-mono text-xs text-[#dca63d] uppercase tracking-widest font-bold block">Representative Desk</span>
+                <h3 className="h2">Hotline &amp; contact</h3>
               </div>
+              <p className="b2 text-black/60 leading-relaxed font-medium">
+                Connect directly for acting auditions, dialect coaching contracts, theatrical accent mapping, or project casting consultations.
+              </p>
 
-              {/* CARD DETS */}
+              {/* Direct links */}
               <div className="space-y-3 pt-2">
                 
-                <div className="flex items-center gap-4 bg-ink-black/40 p-3.5 rounded-xl border border-warm-beige/5 group">
-                  <div className="h-10 w-10 shrink-0 rounded-lg bg-charcoal-medium border border-warm-beige/10 flex items-center justify-center text-sepia-beige">
+                <div className="flex items-center gap-4 bg-[#fff3db] border-2 border-black p-4 rounded-2xl shadow-sm group">
+                  <div className="w-10 h-10 bg-black text-[#ffd177] flex items-center justify-center shrink-0 rounded-xl group-hover:bg-[#ffd177] group-hover:text-black transition-colors border border-black">
                     <Mail className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-mono text-[9px] uppercase tracking-wider text-warm-beige/40 block">Email Address</span>
+                    <span className="font-mono text-[9px] uppercase tracking-wider text-black/40 block font-bold">Email address</span>
                     <button 
-                      onClick={() => copyToClipboard('husneshabnam.connect@gmail.com', 'email-details')}
-                      className="font-serif text-sm font-bold text-white hover:text-sepia-beige hover:underline text-left duration-150 block"
+                      onClick={() => copyToClipboard('husneshabnam.connect@gmail.com', 'form-email')}
+                      className="font-serif text-sm font-bold text-black hover:text-[#dca63d] hover:underline text-left duration-150 block"
                     >
                       husneshabnam.connect@gmail.com
                     </button>
-                    <span className="font-mono text-[8px] text-sepia-beige block mt-0.5 mt-0.5">
-                      {copiedText === 'email-details' ? '✓ Copied Address' : 'Copy Email Address'}
+                    <span className="font-mono text-[8.5px] text-[#dca63d] block mt-0.5 font-bold">
+                      {copiedText === 'form-email' ? '✓ Copied Address' : 'Copy Email Address'}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 bg-ink-black/40 p-3.5 rounded-xl border border-warm-beige/5">
-                  <div className="h-10 w-10 shrink-0 rounded-lg bg-charcoal-medium border border-warm-beige/10 flex items-center justify-center text-sepia-beige">
+                <div className="flex items-center gap-4 bg-[#fff3db] border-2 border-black p-4 rounded-2xl shadow-sm group">
+                  <div className="w-10 h-10 bg-black text-[#ffd177] flex items-center justify-center shrink-0 rounded-xl group-hover:bg-[#ffd177] group-hover:text-black transition-colors border border-black">
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-mono text-[9px] uppercase tracking-wider text-warm-beige/40 block">Casting Hotline</span>
+                    <span className="font-mono text-[9px] uppercase tracking-wider text-black/40 block font-bold">Hotline phone</span>
                     <button 
-                      onClick={() => copyToClipboard('+918240526006', 'phone')}
-                      className="font-mono text-sm font-semibold text-white hover:text-sepia-beige block duration-150 text-left"
+                      onClick={() => copyToClipboard('+918240526006', 'form-phone')}
+                      className="font-mono text-sm font-bold text-black hover:text-[#dca63d] hover:underline text-left duration-150 block"
                     >
                       +91 8240526006
                     </button>
-                    <span className="font-mono text-[8px] text-sepia-beige block mt-0.5">
-                      {copiedText === 'phone' ? '✓ Copied Number' : 'Copy Direct Hotline'}
+                    <span className="font-mono text-[8.5px] text-[#dca63d] block mt-0.5 font-bold">
+                      {copiedText === 'form-phone' ? '✓ Copied Hotline' : 'Copy Direct Hotline'}
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 bg-ink-black/40 p-3.5 rounded-xl border border-warm-beige/5">
-                  <div className="h-10 w-10 shrink-0 rounded-lg bg-charcoal-medium border border-warm-beige/10 flex items-center justify-center text-sepia-beige">
+                <div className="flex items-center gap-4 bg-[#fff3db] border-2 border-black p-4 rounded-2xl shadow-sm group">
+                  <div className="w-10 h-10 bg-black text-[#ffd177] flex items-center justify-center shrink-0 rounded-xl group-hover:bg-[#ffd177] group-hover:text-black transition-colors border border-black">
                     <Instagram className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="font-mono text-[9px] uppercase tracking-wider text-warm-beige/40 block">Instagram Link</span>
+                    <span className="font-mono text-[9px] uppercase tracking-wider text-black/40 block font-bold">Instagram profile</span>
                     <a 
-                      href="https://www.instagram.com/husn_e_shabnam?igsh=Ymt5MWF2eG4yNTR1&utm_source=qr" 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="font-serif text-sm font-bold text-white hover:text-sepia-beige hover:underline flex items-center gap-1.5 duration-150"
+                      href="https://www.instagram.com/husn_e_shabnam?igsh=Ymt5MWF2eG4yNTR1&utm_source=qr"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-serif text-sm font-bold text-black hover:text-[#dca63d] hover:underline flex items-center gap-1 duration-150"
                     >
                       @husn_e_shabnam
-                      <ArrowRight className="w-3 h-3" />
+                      <ArrowRight className="w-3 h-3 text-[#dca63d]" />
                     </a>
-                    <span className="font-mono text-[8px] text-warm-beige/40 block mt-0.5">Follow and direct message</span>
+                    <span className="font-mono text-[8.5px] text-black/45 block mt-0.5">Follow and direct message</span>
                   </div>
                 </div>
 
               </div>
             </div>
 
-            {/* PERSISTED SUBMISSION HISTORY LIST */}
+            {/* Saved log list */}
             {savedBookings.length > 0 && (
-              <div className="space-y-3 border-t border-warm-beige/10 pt-6">
-                <span className="font-mono text-[9.5px] uppercase tracking-widest text-sepia-beige font-semibold block">Pending Bookings Log ({savedBookings.length})</span>
-                <div className="max-h-44 overflow-y-auto space-y-2 pr-2">
-                  {savedBookings.map((b: any) => (
-                    <div key={b.id} className="bg-ink-black/60 border border-warm-beige/5 p-3 rounded-xl space-y-1.5">
-                      <div className="flex justify-between items-start gap-2">
-                        <h5 className="font-serif text-xs font-semibold text-white truncate max-w-xs">{b.projectName}</h5>
-                        <span className="font-mono text-[8px] text-emerald-400 bg-emerald-950/40 border border-emerald-900/30 px-1.5 py-0.5 rounded uppercase">Submitted</span>
+              <div className="space-y-3 border-t-2 border-black/10 pt-6">
+                <span className="font-mono text-[9px] uppercase tracking-widest text-black/50 font-bold block">
+                  Pending proposals ({savedBookings.length})
+                </span>
+                <div className="max-h-40 overflow-y-auto space-y-2 pr-2">
+                  {savedBookings.map((b) => (
+                    <div key={b.id} className="bg-[#fff3db] border-2 border-black p-3 rounded-xl text-xs space-y-1 shadow-sm">
+                      <div className="flex justify-between items-center gap-2">
+                        <span className="font-serif font-bold text-black truncate">{b.projectName}</span>
+                        <span className="px-1.5 py-0.5 bg-[#ffd177] text-black border border-black font-mono text-[8px] uppercase rounded font-bold">
+                          Transmitted
+                        </span>
                       </div>
-                      <p className="text-[10px] text-warm-beige/50">Requested service: {b.serviceType} ({b.platformTarget})</p>
-                      <div className="flex justify-between items-center text-[9px] pt-1">
-                        <span className="text-sepia-beige font-mono">{b.submittedAt}</span>
-                        <span className="text-white/30 italic">{b.status}</span>
+                      <p className="text-[10px] text-black/60 font-medium">Service: {b.serviceType} ({b.platformTarget})</p>
+                      <div className="flex justify-between items-center text-[9px] pt-1 border-t border-black/10 mt-1">
+                        <span className="text-black/60 font-mono font-bold">{b.submittedAt}</span>
+                        <span className="text-[#dca63d] italic font-black">{b.status}</span>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
+
           </div>
 
-          {/* THE BOOKING REQUEST FORM (Right) */}
-          <div className="lg:col-span-7 bg-charcoal-medium/50 rounded-3xl border border-warm-beige/12 p-8 flex flex-col justify-between">
+          {/* Right panel: Form */}
+          <div className="lg:col-span-7 border-2 border-black bg-[#fff3db] p-8 rounded-3xl shadow-sm">
             {bookingStatus === 'submitted' ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 animate-fade-in">
-                <div className="h-16 w-16 bg-emerald-950/60 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center">
+              <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-5 animate-fade-in">
+                <div className="w-16 h-16 bg-[#ffd177]/20 border-2 border-black rounded-full flex items-center justify-center text-[#dca63d]">
                   <CheckCircle className="w-8 h-8" />
                 </div>
-                <div className="space-y-1.5">
-                  <h4 className="font-serif text-2xl font-bold text-white">Proposal Transmitted successfully!</h4>
-                  <p className="text-sm text-warm-beige/70 max-w-md mx-auto">
-                    Husne Shabnam's casting rep will review your project proposal details (<strong>{bookingFormData.projectName}</strong>) and follow up at <strong>{bookingFormData.clientEmail}</strong> within 48 business hours.
+                <div className="space-y-2">
+                  <h4 className="font-serif text-2xl font-black text-black">Proposal Transmitted!</h4>
+                  <p className="text-xs text-black/60 max-w-sm mx-auto leading-relaxed">
+                    Husne Shabnam's representative team will review your script parameters for <strong>{bookingFormData.projectName}</strong> and respond at <strong>{bookingFormData.clientEmail}</strong> within 48 hours.
                   </p>
-                </div>
-                <div className="bg-ink-black/40 border border-warm-beige/5 p-4 rounded-xl text-left text-xs space-y-2 w-full max-w-md mx-auto font-mono">
-                  <span className="text-sepia-beige uppercase text-[9px] tracking-wider block border-b border-warm-beige/10 pb-1.5">TRANSMITTED METADATA RECONCILE:</span>
-                  <div className="flex justify-between"><span className="text-warm-beige/40">Requester:</span> <span className="text-white">{bookingFormData.clientName}</span></div>
-                  <div className="flex justify-between"><span className="text-warm-beige/40">Category:</span> <span className="text-white">{bookingFormData.serviceType}</span></div>
-                  <div className="flex justify-between"><span className="text-warm-beige/40">Target Platform:</span> <span className="text-white">{bookingFormData.platformTarget}</span></div>
-                  <div className="flex justify-between"><span className="text-warm-beige/40">Estimated Budget:</span> <span className="text-white">{bookingFormData.estimatedBudget}</span></div>
                 </div>
                 <button
                   onClick={resetForm}
-                  className="px-6 py-2.5 bg-sepia-beige text-ink-black font-semibold rounded-lg hover:bg-sepia-beige/90 transition-all font-mono text-xs uppercase tracking-wider"
+                  className="px-6 py-2.5 bg-[#0e0e0e] hover:bg-[#ffd177] hover:text-black text-white font-mono text-xs uppercase tracking-widest font-black transition-all"
                 >
-                  Draft Another Request
+                  Create another proposal
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleBookingSubmit} className="space-y-5">
-                <div className="space-y-1.5">
-                  <span className="font-mono text-xs text-sepia-beige uppercase tracking-widest block">Interactive Booking Deck</span>
-                  <h4 className="font-serif text-2xl font-bold text-white">Consolidated Casting Matrix</h4>
-                  <p className="text-xs text-warm-beige/50">Submit project parameters to directly schedule dial-in times or audition recordings.</p>
+              <form onSubmit={handleBookingSubmit} className="space-y-4">
+                <div className="space-y-1">
+                  <span className="font-mono text-xs text-[#dca63d] uppercase tracking-wider block font-bold">Interactive Casting Deck</span>
+                  <h4 className="font-serif text-xl font-bold text-black">Consolidated Audition Request</h4>
+                  <p className="text-xs text-black/50">Submit project specifications to directly lock date blocks or rehearsal spaces.</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* CLIENT NAME */}
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] uppercase text-warm-beige/50 block">Your Full Name / Agency</label>
+                    <label className="font-mono text-[9px] uppercase text-black/50 block font-bold">Your Name / Agency</label>
                     <input 
                       type="text" 
                       required
-                      placeholder="e.g. Dharma Productions Casting"
+                      placeholder="e.g. Dharma Casting Office"
                       value={bookingFormData.clientName}
                       onChange={(e) => setBookingFormData({...bookingFormData, clientName: e.target.value})}
-                      className="w-full bg-ink-black border border-warm-beige/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sepia-beige focus:border-sepia-beige placeholder:text-warm-beige/25"
+                      className="w-full bg-[#fff3db] border border-black/20 rounded px-3 py-2 text-xs text-black focus:outline-none focus:ring-1 focus:ring-[#ffd177] focus:border-black placeholder:text-black/30"
                     />
                   </div>
-
-                  {/* CLIENT EMAIL */}
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] uppercase text-warm-beige/50 block">Contact Email Address</label>
+                    <label className="font-mono text-[9px] uppercase text-black/50 block font-bold">Contact Email</label>
                     <input 
                       type="email" 
                       required
-                      placeholder="e.g. casting@producer.com"
+                      placeholder="e.g. rep@agency.com"
                       value={bookingFormData.clientEmail}
                       onChange={(e) => setBookingFormData({...bookingFormData, clientEmail: e.target.value})}
-                      className="w-full bg-ink-black border border-warm-beige/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sepia-beige focus:border-sepia-beige placeholder:text-warm-beige/25"
+                      className="w-full bg-[#fff3db] border border-black/20 rounded px-3 py-2 text-xs text-black focus:outline-none focus:ring-1 focus:ring-[#ffd177] focus:border-black placeholder:text-black/30"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* PROJECT NAME */}
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] uppercase text-warm-beige/50 block">Project Title</label>
+                    <label className="font-mono text-[9px] uppercase text-black/50 block font-bold">Project Title</label>
                     <input 
                       type="text" 
                       required
-                      placeholder="e.g. Untitled Drama Series"
+                      placeholder="e.g. Rocky Aur Rani Sequel"
                       value={bookingFormData.projectName}
                       onChange={(e) => setBookingFormData({...bookingFormData, projectName: e.target.value})}
-                      className="w-full bg-ink-black border border-warm-beige/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sepia-beige focus:border-sepia-beige placeholder:text-warm-beige/25"
+                      className="w-full bg-[#fff3db] border border-black/20 rounded px-3 py-2 text-xs text-black focus:outline-none focus:ring-1 focus:ring-[#ffd177] focus:border-black placeholder:text-black/30"
                     />
                   </div>
-
-                  {/* SERVICE TYPE */}
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] uppercase text-warm-beige/50 block">Requested Services</label>
+                    <label className="font-mono text-[9px] uppercase text-black/50 block font-bold">Requested Service</label>
                     <select 
                       value={bookingFormData.serviceType}
                       onChange={(e) => setBookingFormData({...bookingFormData, serviceType: e.target.value})}
-                      className="w-full bg-ink-black border border-warm-beige/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sepia-beige focus:border-sepia-beige"
+                      className="w-full bg-[#fff3db] border border-black/20 rounded px-3 py-2 text-xs text-black focus:outline-none focus:ring-1 focus:ring-[#ffd177] focus:border-black"
                     >
                       <option value="Acting Audition">Theatrical Acting Audition</option>
                       <option value="Dialect Coaching Series">Bengali Dialect Coaching (Series)</option>
@@ -1217,13 +1275,12 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* PLATFORM SCOPE */}
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] uppercase text-warm-beige/50 block">Distribution Platform target</label>
+                    <label className="font-mono text-[9px] uppercase text-black/50 block font-bold">Platform Scope</label>
                     <select 
                       value={bookingFormData.platformTarget}
                       onChange={(e) => setBookingFormData({...bookingFormData, platformTarget: e.target.value})}
-                      className="w-full bg-ink-black border border-warm-beige/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sepia-beige focus:border-sepia-beige"
+                      className="w-full bg-[#fff3db] border border-black/20 rounded px-3 py-2 text-xs text-black focus:outline-none focus:ring-1 focus:ring-[#ffd177] focus:border-black"
                     >
                       <option value="Netflix">Netflix Originals</option>
                       <option value="Amazon Prime Video">Amazon Prime Video</option>
@@ -1234,41 +1291,38 @@ export default function App() {
                       <option value="Digital Campaign / Other">Digital Commercial Campaign</option>
                     </select>
                   </div>
-
-                  {/* ESTIMATED BUDGET CATEGORY */}
                   <div className="space-y-1">
-                    <label className="font-mono text-[10px] uppercase text-warm-beige/50 block">Approximate Budget Category</label>
+                    <label className="font-mono text-[9px] uppercase text-black/50 block font-bold">Budget Scale</label>
                     <select 
                       value={bookingFormData.estimatedBudget}
                       onChange={(e) => setBookingFormData({...bookingFormData, estimatedBudget: e.target.value})}
-                      className="w-full bg-ink-black border border-warm-beige/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sepia-beige focus:border-sepia-beige"
+                      className="w-full bg-[#fff3db] border border-black/20 rounded px-3 py-2 text-xs text-black focus:outline-none focus:ring-1 focus:ring-[#ffd177] focus:border-black"
                     >
                       <option value="Standard Association Rate">Standard Association Guild Rate</option>
                       <option value="Indie Film Tier">Indie Film Scale / Grant Fund</option>
-                      <option value="High Production Scale">High Production Commercial budget</option>
+                      <option value="High Production Scale">High Production Commercial Budget</option>
                       <option value="To Be Discussed / Open">To Be Negotiated on Call</option>
                     </select>
                   </div>
                 </div>
 
-                {/* ADDITIONAL MESSAGE DETAILS */}
                 <div className="space-y-1">
-                  <label className="font-mono text-[10px] uppercase text-warm-beige/50 block">Brief Creative Summary / Rehearsal Schedule</label>
+                  <label className="font-mono text-[9px] uppercase text-black/50 block font-bold">Audition Script Notes / Dialect parameters</label>
                   <textarea 
                     rows={3}
-                    placeholder="Provide audition scripts, dialect needs, or brief notes about the character archetype..."
+                    placeholder="Provide character bio summaries, dialect scripts, or expected call sheet dates..."
                     value={bookingFormData.messageDetails}
                     onChange={(e) => setBookingFormData({...bookingFormData, messageDetails: e.target.value})}
-                    className="w-full bg-ink-black border border-warm-beige/10 rounded-lg px-4 py-2 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sepia-beige focus:border-sepia-beige placeholder:text-warm-beige/25 resize-none"
+                    className="w-full bg-[#fff3db] border border-black/20 rounded px-3 py-2 text-xs text-black focus:outline-none focus:ring-1 focus:ring-[#ffd177] focus:border-black placeholder:text-black/30 resize-none"
                   />
                 </div>
 
                 <button 
                   type="submit"
-                  className="w-full py-3 bg-sepia-beige hover:bg-sepia-beige/95 text-ink-black font-semibold rounded-lg transition-all font-mono text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                  className="w-full py-3 bg-[#0e0e0e] hover:bg-[#ffd177] hover:text-black text-white font-mono text-xs uppercase tracking-widest font-black transition-all flex items-center justify-center gap-2 shadow cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  Transmit Casting Request Reconcile
+                  Transmit Casting Proposal
                 </button>
               </form>
             )}
@@ -1278,17 +1332,17 @@ export default function App() {
       </section>
 
       {/* FOOTER CODA */}
-      <footer id="footer-coda" className="max-w-7xl mx-auto px-4 md:px-12 pt-16 border-t border-warm-beige/10">
+      <footer className="max-w-7xl mx-auto px-6 md:px-12 pt-16 border-t border-black/10">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
-            <h5 className="font-serif text-base tracking-widest font-black uppercase text-warm-beige">HUSNE SHABNAM</h5>
-            <p className="font-sans text-xs text-warm-beige/40 mt-1">
-              Experienced Theatre and Screen Artist • Industry Dialect Specialist.
+            <h5 className="font-serif text-lg font-black uppercase text-black">HUSNE SHABNAM</h5>
+            <p className="font-sans text-xs text-black/40 mt-1">
+              Equity / Cine Artist • Professional Theatrical Dialect Coach.
             </p>
           </div>
 
-          <p className="font-mono text-[10px] text-warm-beige/35 text-center">
-            © {new Date().getFullYear()} Husne Shabnam. All Rights Reserved. Mumbai & West Bengal.
+          <p className="font-mono text-[10px] text-black/35 text-center">
+            © {new Date().getFullYear()} Husne Shabnam. All Rights Reserved. Mumbai &amp; West Bengal.
           </p>
         </div>
       </footer>

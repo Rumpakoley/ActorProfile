@@ -31,7 +31,8 @@ export const actorProjects: ActorProject[] = [
     director: "Amrit Raj Gupta",
     platform: "Netflix",
     featured: true,
-    synopsis: "An elegant, critically-acclaimed satirical drama series where Husne delivers a scene-stealing performance as a key recurring supporting character."
+    synopsis: "An elegant, critically-acclaimed satirical drama series where Husne delivers a scene-stealing performance as a key recurring supporting character.",
+    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781355234/MV5BOGMyOWU0MzAtNWYyZi00NWE4LWIwNGUtODMxYjdjY2Y4MTU3XkEyXkFqcGc._V1__t2u21i.jpg"
   },
   {
     id: "act-2",
@@ -246,28 +247,28 @@ export const portraitGallery = [
   {
     title: "Theatrical Dramatic Profile",
     description: "Black and white emotional depth study.",
-    imagePath: "/src/assets/images/husne_cinematic_bw_1780647337773.png",
+    imagePath: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781353663/69e21bd4-1ad9-4c4c-9b09-3ac1f35e5195_yzqzwc.jpg",
     aspectRatio: "3:4",
     category: "Theatrical"
   },
   {
     title: "Traditional Indian Expression",
     description: "Serene posture representing authentic South Asian heritage and stage roles in custom handloomed saree.",
-    imagePath: "/src/assets/images/husne_traditional_saree_1780647353617.png",
+    imagePath: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781353664/15B86EEA-BCE4-48FF-B916-2F9ABBDE9A8F_unsbgt.jpg",
     aspectRatio: "3:4",
     category: "Traditional"
   },
   {
     title: "Bodily Awareness & Athletic",
     description: "High-energy movement training, showcasing strength and physical yoga disciplines.",
-    imagePath: "/src/assets/images/husne_athletic_movement_1780647368168.png",
+    imagePath: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781353664/7F54452A-4121-49B7-AC0C-6C23DAFBC3BB_hqt3sw.jpg",
     aspectRatio: "3:4",
     category: "Physical"
   },
   {
     title: "Professional Linguistic Profile",
     description: "Friendly, intellectual studio capture illustrating her coaching and language training persona.",
-    imagePath: "/src/assets/images/husne_dialect_coach_1780647382729.png",
+    imagePath: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781353672/_DSC2189_zajqzg.jpg",
     aspectRatio: "3:4",
     category: "Coaching"
   }
