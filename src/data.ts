@@ -42,7 +42,8 @@ export const actorProjects: ActorProject[] = [
     director: "Vishal Bhardwaj",
     platform: "Netflix",
     featured: true,
-    synopsis: "Collaborator in legendary director Vishal Bhardwaj's segment, handling a nuanced, character-driven leading role."
+    synopsis: "Collaborator in legendary director Vishal Bhardwaj's segment, handling a nuanced, character-driven leading role.",
+    imageUrl: "/src/assets/images/Lust_Stories_3_poster_1770284628.avif"
   },
   {
     id: "act-3",
