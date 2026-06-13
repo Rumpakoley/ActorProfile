@@ -54,7 +54,8 @@ export const actorProjects: ActorProject[] = [
     director: "Arpita Pattanayak",
     platform: "YouTube",
     featured: true,
-    synopsis: "A suspenseful drama showcasing her versatility and emotional spectrum in a principal character role."
+    synopsis: "A suspenseful drama showcasing her versatility and emotional spectrum in a principal character role.",
+    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781356377/maxresdefault_odpsrq.jpg"
   },
   {
     id: "act-4",
