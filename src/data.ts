@@ -1,4 +1,5 @@
 import { ActorProject, DialectCoachProject, VoiceDemo, PersonalDetails, SkillItem } from './types';
+import lustStoriesPoster from './assets/images/Lust_Stories_3_poster_1770284628.avif';
 
 export const personalDetails: PersonalDetails = {
   age: 30,
@@ -43,7 +44,7 @@ export const actorProjects: ActorProject[] = [
     platform: "Netflix",
     featured: true,
     synopsis: "Collaborator in legendary director Vishal Bhardwaj's segment, handling a nuanced, character-driven leading role.",
-    imageUrl: "/src/assets/images/Lust_Stories_3_poster_1770284628.avif"
+    imageUrl: lustStoriesPoster
   },
   {
     id: "act-3",
