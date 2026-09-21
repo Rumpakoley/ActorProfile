@@ -619,19 +619,28 @@ export default function App() {
                     className="snap-start shrink-0 w-72 md:w-80 border-2 border-black bg-[#0e0e0e] text-[#f5f2eb] p-5 rounded-3xl flex flex-col justify-between h-[32rem] relative group hover:scale-[1.01] transition-transform duration-300"
                   >
                     <div>
-                      {/* Cover art square */}
-                      <div className={`aspect-square w-full rounded-2xl overflow-hidden relative border border-white/10 ${p.imageUrl ? '' : coverBg}`}>
+                      {/* Cover art container */}
+                      <div className={`aspect-square w-full rounded-2xl overflow-hidden relative border border-white/10 bg-[#080808] flex items-center justify-center ${p.imageUrl ? '' : coverBg}`}>
                         {p.imageUrl ? (
-                          <img
-                            src={p.imageUrl}
-                            alt={p.project}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
-                          />
+                          <>
+                            {/* Ambient blurred backdrop for soft fill */}
+                            <img
+                              src={p.imageUrl}
+                              alt=""
+                              aria-hidden="true"
+                              className="absolute inset-0 w-full h-full object-cover blur-xl opacity-30 scale-110 pointer-events-none"
+                            />
+                            <img
+                              src={p.imageUrl}
+                              alt={p.project}
+                              className="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-105"
+                              loading="lazy"
+                            />
+                          </>
                         ) : (
                           coverGraphic
                         )}
-                        <div className="absolute bottom-3 left-3 bg-black/65 px-2 py-0.5 rounded text-[8px] font-mono tracking-wider uppercase text-[#ffd177] font-bold">
+                        <div className="absolute bottom-3 left-3 z-20 bg-black/75 backdrop-blur-xs px-2 py-0.5 rounded text-[8px] font-mono tracking-wider uppercase text-[#ffd177] font-bold border border-white/10">
                           {p.year}
                         </div>
                       </div>
