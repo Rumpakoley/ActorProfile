@@ -1,5 +1,4 @@
 import { ActorProject, DialectCoachProject, VoiceDemo, PersonalDetails, SkillItem } from './types';
-import lustStoriesPoster from './assets/images/Lust_Stories_3_poster_1770284628.avif';
 
 export const personalDetails: PersonalDetails = {
   age: 30,
@@ -25,6 +24,27 @@ export const bioSummary = {
 
 export const actorProjects: ActorProject[] = [
   {
+    id: "act-2",
+    project: "Lust Stories 3",
+    year: "TBA",
+    role: "Primary Character – Mishty",
+    director: "Vishal Bhardwaj",
+    platform: "Netflix",
+    featured: true,
+    synopsis: "Collaborator in legendary director Vishal Bhardwaj's segment, handling a nuanced, character-driven leading role.",
+    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1790003443/photo_c6c4ly.avif"
+  },
+  {
+    id: "act-4",
+    project: "Rocky Aur Rani Kii Prem Kahaani",
+    year: "2023",
+    role: "Cameo",
+    director: "Karan Johar",
+    platform: "Amazon Prime Video",
+    synopsis: "A specialized performance cameo and collaborative contribution to Karan Johar's box office blockbuster.",
+    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781356994/MV5BMzE0Yzc4OGItODY3ZC00ZDgyLWI0NjUtZWM3OGMxNjEzNDYyXkEyXkFqcGc._V1__v0hpum.jpg"
+  },
+  {
     id: "act-1",
     project: "Tribhuvan Mishra: CA Topper",
     year: "2024",
@@ -34,17 +54,6 @@ export const actorProjects: ActorProject[] = [
     featured: true,
     synopsis: "An elegant, critically-acclaimed satirical drama series where Husne delivers a scene-stealing performance as a key recurring supporting character.",
     imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781355234/MV5BOGMyOWU0MzAtNWYyZi00NWE4LWIwNGUtODMxYjdjY2Y4MTU3XkEyXkFqcGc._V1__t2u21i.jpg"
-  },
-  {
-    id: "act-2",
-    project: "Lust Stories 3",
-    year: "TBA",
-    role: "Primary Character – Mishty",
-    director: "Vishal Bhardwaj",
-    platform: "Netflix",
-    featured: true,
-    synopsis: "Collaborator in legendary director Vishal Bhardwaj's segment, handling a nuanced, character-driven leading role.",
-    imageUrl: lustStoriesPoster
   },
   {
     id: "act-3",
@@ -58,22 +67,14 @@ export const actorProjects: ActorProject[] = [
     imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781356377/maxresdefault_odpsrq.jpg"
   },
   {
-    id: "act-4",
-    project: "Rocky Aur Rani Kii Prem Kahaani",
-    year: "2023",
-    role: "Cameo",
-    director: "Karan Johar",
-    platform: "Amazon Prime Video",
-    synopsis: "A specialized performance cameo and collaborative contribution to Karan Johar's box office blockbuster."
-  },
-  {
     id: "act-5",
     project: "Brown",
     year: "TBA",
     role: "Cameo (Actor & Singer) – Nisha",
     director: "Abhinay Deo",
     platform: "ZEE Studios",
-    synopsis: "Dual talent showcase combining her acting presence and formal singing training in a cameo performance."
+    synopsis: "Dual talent showcase combining her acting presence and formal singing training in a cameo performance.",
+    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781357444/Brown__2026_TV_series_q4ro5i.jpg"
   },
   {
     id: "act-6",
@@ -82,7 +83,8 @@ export const actorProjects: ActorProject[] = [
     role: "Lead – Draupadi",
     director: "Aneek Chaudhuri",
     platform: "Amazon Prime Video / Apple TV",
-    synopsis: "A spectacular translation of Draupadi's epic journey in building an avant-garde arthouse cinematic project."
+    synopsis: "A spectacular translation of Draupadi's epic journey in building an avant-garde arthouse cinematic project.",
+    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781357863/57144253a2c2bc3486d68f38cafa8b944555b7bc6d161c6fc0bd9be5f26bef76_hkzyyu.jpg"
   },
   {
     id: "act-7",
@@ -91,7 +93,8 @@ export const actorProjects: ActorProject[] = [
     role: "Primary Cast – Somarani",
     director: "Srijit Mukherji",
     platform: "Hoichoi",
-    synopsis: "A highly-rated Bengali mystery thriller series with a sharp, dark and enigmatic execution."
+    synopsis: "A highly-rated Bengali mystery thriller series with a sharp, dark and enigmatic execution.",
+    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1781358096/MV5BNDhkNTYyNTAtOWNmNy00ZDc0LWEyZTQtNzExMjQzODEwYjBlXkEyXkFqcGc._V1_FMjpg_UX1000__qjsbwq.jpg"
   }
 ];
 
