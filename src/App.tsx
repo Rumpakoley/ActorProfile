@@ -314,14 +314,17 @@ export default function App() {
       
       {/* FLOATING HEADER / MENU */}
       <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 flex items-center bg-[#fff3db]/90 backdrop-blur-md border border-black/15 shadow-lg rounded-full py-1.5 px-3 sm:px-4 gap-1 sm:gap-2 max-w-[92vw]">
+        <a href="#hero-display" className="px-3 py-1.5 rounded-full hover:bg-black/5 font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
+          gallery
+        </a>
         <a href="#acting-timeline" className="px-3 py-1.5 rounded-full hover:bg-black/5 font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
-          actor
+          exhibitions
         </a>
-        <a href="#coaching-voice" className="px-3 py-1.5 rounded-full hover:bg-black/5 font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
-          voice &amp; dialect
+        <a href="#biography" className="px-3 py-1.5 rounded-full hover:bg-black/5 font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
+          biography
         </a>
-        <a href="#skills-game-grid" className="px-3 py-1.5 rounded-full hover:bg-black/5 font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
-          skills
+        <a href="#cv-section" className="px-3 py-1.5 rounded-full hover:bg-black/5 font-mono text-[10px] uppercase font-bold tracking-wider transition-all">
+          cv
         </a>
         <a href="#booking-contact" className="px-4 py-1.5 bg-[#0e0e0e] hover:bg-[#ffd177] hover:text-black text-white rounded-full font-mono text-[10px] uppercase font-bold tracking-wider transition-all shadow-sm">
           contact
@@ -334,8 +337,17 @@ export default function App() {
         {/* LEFT AREA: TYPOGRAPHIC SPLIT (Initials rotating seal, giant stacked name, spaced clocks) */}
         <div className="w-full lg:w-1/2 flex flex-col justify-between p-8 md:p-12 pt-28 pb-8 lg:pb-12 border-b-2 lg:border-b-0 lg:border-r-2 border-black bg-[#ffd177]">
           
-          {/* Top spacer (the header floating navbar stands above, so we just need a tiny alignment or logo placement if needed) */}
-          <div className="h-6"></div>
+          {/* Spaced Info/Clock Bar at the Top */}
+          <motion.div 
+            initial={{ opacity: 0, y: -15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
+            className="flex flex-wrap justify-between items-center border-b border-black/10 pb-4 mb-6 font-mono text-[9px] md:text-[10.5px] font-black uppercase tracking-widest text-black gap-y-2"
+          >
+            <div>MUMBAI, INDIA</div>
+            <div>{istDate}</div>
+            <div>{istTime} IST / {localTime} LOCAL</div>
+          </motion.div>
 
           {/* Stacked Name Banner */}
           <motion.div 
@@ -364,17 +376,8 @@ export default function App() {
             </div>
           </motion.div>
 
-          {/* Spaced Info/Clock Bar at the Bottom */}
-          <motion.div 
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: "easeOut" }}
-            className="flex flex-wrap justify-between items-center border-t border-black/10 pt-4 mt-6 font-mono text-[9px] md:text-[10.5px] font-black uppercase tracking-widest text-black gap-y-2"
-          >
-            <div>MUMBAI, INDIA</div>
-            <div>{istDate}</div>
-            <div>{istTime} IST / {localTime} LOCAL</div>
-          </motion.div>
+          {/* Bottom spacer */}
+          <div className="h-6"></div>
 
         </div>
 
@@ -450,7 +453,7 @@ export default function App() {
       </section>
 
       {/* CORE INTRO STATEMENT CARD */}
-      <section className="max-w-7xl mx-auto px-6 md:px-12 py-10">
+      <section id="biography" className="max-w-7xl mx-auto px-6 md:px-12 py-10">
         <div className="border-t-2 border-b-2 border-black/15 py-12">
           <div className="max-w-5xl">
             <h3 className="h3 leading-relaxed font-medium">
@@ -982,64 +985,87 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION: MOVEMENT & SKILLS / GAME GRID (শরীর) */}
-      <section id="skills-game-grid" className="max-w-7xl mx-auto px-6 md:px-12 py-12 border-t border-black/10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      {/* SECTION: MOVEMENT & SKILLS */}
+      <section id="cv-section" className="bg-[#0e0e0e] text-white border-t border-b border-black py-20">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
-          {/* Column 1: Header + Bengali Label */}
-          <div className="lg:col-span-4 lg:sticky lg:top-24">
+          {/* Column 1: Header */}
+          <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
             <div className="space-y-2">
-              <span className="font-mono text-xs text-[#dca63d] uppercase tracking-widest font-bold block">Artistry Flow</span>
-              <h2 className="h2">Movement &amp; skills</h2>
+              <span className="font-mono text-xs text-[#ffd177] uppercase tracking-widest font-bold block">Artistry Flow</span>
+              <h2 className="h2 text-white">Movement &amp; skills</h2>
             </div>
-            <p className="b2 mt-4 max-w-sm text-black/60 font-sans">
-              Husne’s extensive movement routines, classical vocal singing training, and physical body disciplines represent the foundational craft she applies to character embodyment.
+            <p className="font-sans text-sm text-white/60 leading-relaxed max-w-sm">
+              Husne’s extensive movement routines, classical vocal singing training, and physical body disciplines represent the foundational craft she applies to character embodiment.
             </p>
+
+            {/* CV Download Card */}
+            <div className="mt-8 pt-6 border-t border-white/10 space-y-4">
+              <span className="font-mono text-[10px] text-[#ffd177] uppercase tracking-widest font-bold block">Download Profile PDFs</span>
+              <div className="space-y-2.5">
+                <a 
+                  href="/HUSNE SHABNAM Resume .pdf" 
+                  download
+                  className="flex items-center justify-between p-3 bg-white/5 border border-white/10 hover:border-[#ffd177] hover:bg-white/10 transition-all rounded-xl group"
+                >
+                  <span className="font-mono text-[11px] text-white/80 group-hover:text-white">Husne Shabnam Resume</span>
+                  <span className="font-mono text-[9px] text-[#ffd177] border border-[#ffd177]/25 px-2 py-0.5 rounded uppercase">PDF</span>
+                </a>
+                <a 
+                  href="/HUSNE SHABNAM ( Acting profile )  2.pdf" 
+                  download
+                  className="flex items-center justify-between p-3 bg-white/5 border border-white/10 hover:border-[#ffd177] hover:bg-white/10 transition-all rounded-xl group"
+                >
+                  <span className="font-mono text-[11px] text-white/80 group-hover:text-white">Acting Profile</span>
+                  <span className="font-mono text-[9px] text-[#ffd177] border border-[#ffd177]/25 px-2 py-0.5 rounded uppercase">PDF</span>
+                </a>
+                <a 
+                  href="/HUSNE SHABNAM ( Dialect Coaching profile ) .pdf" 
+                  download
+                  className="flex items-center justify-between p-3 bg-white/5 border border-white/10 hover:border-[#ffd177] hover:bg-white/10 transition-all rounded-xl group"
+                >
+                  <span className="font-mono text-[11px] text-white/80 group-hover:text-white">Coaching Profile</span>
+                  <span className="font-mono text-[9px] text-[#ffd177] border border-[#ffd177]/25 px-2 py-0.5 rounded uppercase">PDF</span>
+                </a>
+              </div>
+            </div>
           </div>
 
-          {/* Column 2: Game card grid covers */}
-          <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {skillsList.map((skill, idx) => (
-              <motion.div 
-                key={skill.name}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: idx * 0.08, ease: "easeOut" }}
-                whileHover={{ y: -8 }}
-                className="border-2 border-black bg-[#0e0e0e] text-[#f5f2eb] flex flex-col justify-between h-72 p-5 hover:shadow-lg transition-shadow duration-300 group rounded-3xl cursor-pointer"
-              >
-                {/* Visual cartridge cover graphic */}
-                <div className="h-28 border-2 border-white/10 bg-white/5 flex flex-col justify-between p-3 relative overflow-hidden rounded-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-[#ffd177]/5 to-transparent pointer-events-none" />
-                  <div className="flex justify-between items-start">
-                    <span className="font-mono text-[8px] bg-[#ffd177] text-black px-1.5 py-0.5 rounded font-black tracking-widest uppercase">
-                      SKILL {idx + 1}
-                    </span>
-                    <span className="font-mono text-[9px] text-white/45 font-bold uppercase">{skill.category}</span>
-                  </div>
-                  <div className="font-serif font-black text-2xl text-white/5 uppercase select-none leading-none">
-                    CRAFT
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 pt-4">
-                  <h4 className="font-serif text-base font-black text-white group-hover:text-[#ffd177] leading-tight transition-colors">
-                    {skill.name}
-                  </h4>
-                  <p className="font-mono text-[9px] text-white/40 uppercase tracking-widest font-bold">
-                    Discipline Profile
-                  </p>
-                </div>
-
-                <div className="border-t-2 border-white/10 pt-3 mt-3 flex justify-between items-center">
-                  <span className="font-mono text-[9px] uppercase tracking-wider text-[#f5f2eb]/45">VERIFIED LEVEL</span>
-                  <span className="px-2 py-0.5 bg-[#ffd177] text-black border-2 border-black font-mono text-[9px] font-bold uppercase rounded-lg">
-                    {skill.level}
+          {/* Column 2: List Layout matching reference image */}
+          <div className="lg:col-span-8 space-y-8">
+            {skillsList.map((skill, idx) => {
+              const numStr = String(idx + 1).padStart(2, '0');
+              return (
+                <motion.div 
+                  key={skill.name}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-20px" }}
+                  transition={{ duration: 0.5, delay: idx * 0.05, ease: "easeOut" }}
+                  className="border-b border-white/10 pb-8 space-y-3 group"
+                >
+                  {/* Number Badge */}
+                  <span className="font-mono text-xs text-[#ffd177] font-bold tracking-widest block">
+                    [{numStr}]
                   </span>
-                </div>
-              </motion.div>
-            ))}
+                  
+                  {/* Skill Details Row */}
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                    {/* Giant Uppercase Title */}
+                    <h4 className="font-sans text-xl sm:text-2xl md:text-3xl font-black uppercase tracking-tight text-white/90 group-hover:text-[#ffd177] transition-colors leading-tight max-w-xl">
+                      {skill.name}
+                    </h4>
+                    
+                    {/* Badge on Right */}
+                    <div className="shrink-0 flex items-center">
+                      <span className="border border-[#ffd177]/30 text-[#ffd177] px-3 py-1 font-mono text-[9.5px] uppercase tracking-widest font-bold rounded">
+                        LEVEL // {skill.level.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
 
         </div>
