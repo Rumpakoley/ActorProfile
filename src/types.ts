@@ -46,3 +46,28 @@ export interface SkillItem {
   category: 'Acting' | 'Movement/Physical' | 'Vocal/Dialect' | 'Other';
   level?: 'Expert' | 'Intermediate' | 'Beginner' | string;
 }
+
+export interface PressArticle {
+  id: string;
+  publication: string;
+  author: string;
+  authorRole?: string;
+  date: string;
+  readTime: string;
+  headline: string;
+  subheadline: string;
+  url: string;
+  imageUrl: string;
+  badge: string;
+  excerpt: string;
+  pullQuote: string;
+  pullQuoteSpeaker: string;
+  keyQuotes: {
+    topic: string;
+    quote: string;
+  }[];
+  fullStory: {
+    sectionHeading?: string;
+    paragraphs: string[];
+  }[];
+}

@@ -8,12 +8,14 @@ import {
   otherWorkList, 
   voiceReels, 
   AIISPartner, 
-  portraitGallery 
+  portraitGallery,
+  pressArticles
 } from './data';
 import { 
   ActorProject, 
   DialectCoachProject, 
-  VoiceDemo 
+  VoiceDemo,
+  PressArticle
 } from './types';
 import { 
   motion, 
@@ -36,7 +38,12 @@ import {
   ArrowRight, 
   Search, 
   Send,
-  Clock
+  Clock,
+  BookOpen,
+  ExternalLink,
+  Quote,
+  Newspaper,
+  X
 } from 'lucide-react';
 
 export default function App() {
@@ -75,6 +82,21 @@ export default function App() {
   const [istDate, setIstDate] = useState('');
   const [localTime, setLocalTime] = useState('');
   const [localZone, setLocalZone] = useState('');
+
+  // Active reading article for the reader modal
+  const [readingArticle, setReadingArticle] = useState<PressArticle | null>(null);
+
+  // Lock body scroll when article reader modal is active
+  useEffect(() => {
+    if (readingArticle) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [readingArticle]);
 
   // Voice reels slider reference
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -695,6 +717,176 @@ export default function App() {
           </div>
 
         </div>
+      </section>
+
+      {/* SECTION: FEATURED PRESS & IN-DEPTH ARTICLES */}
+      <section id="press-article" className="max-w-7xl mx-auto px-6 md:px-12 py-16 border-t border-black/10 space-y-10">
+        
+        {/* Section Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div className="space-y-2 max-w-2xl">
+            <span className="font-mono text-xs text-[#dca63d] uppercase tracking-widest font-bold block">
+              // Editorial Features &amp; Press Coverage
+            </span>
+            <h2 className="h2 text-black">In the news &amp; conversations</h2>
+            <p className="b2 text-black/60 leading-relaxed">
+              In-depth exclusive interviews, critical coverage, and creative insights from leading entertainment and cinema publications.
+            </p>
+          </div>
+          <div className="shrink-0 flex items-center gap-2">
+            <span className="font-mono text-[11px] text-black/60 uppercase tracking-widest font-bold">
+              {pressArticles.length} Featured {pressArticles.length === 1 ? 'Piece' : 'Pieces'}
+            </span>
+          </div>
+        </div>
+
+        {/* Featured Press Card */}
+        <div className="space-y-8">
+          {pressArticles.map((article) => (
+            <motion.div
+              key={article.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="border-2 border-black bg-[#fff3db] rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-12">
+                
+                {/* Left/Image Column */}
+                <div className="lg:col-span-5 relative min-h-[300px] lg:min-h-full bg-black overflow-hidden flex items-center justify-center group">
+                  <img
+                    src={article.imageUrl}
+                    alt={article.headline}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                  
+                  {/* Top-left Publication Pill */}
+                  <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2 items-center">
+                    <span className="bg-[#b91c1c] text-white font-mono text-[9px] uppercase tracking-widest font-black px-3 py-1 rounded-full shadow-md">
+                      {article.badge}
+                    </span>
+                    <span className="bg-black/60 backdrop-blur-md text-white font-mono text-[9px] uppercase tracking-wider font-bold px-2.5 py-1 rounded-full border border-white/20">
+                      {article.publication}
+                    </span>
+                  </div>
+
+                  {/* Bottom Image Meta */}
+                  <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between text-white/90 font-mono text-[10px]">
+                    <span className="bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded border border-white/10 font-bold tracking-wider">
+                      {article.date}
+                    </span>
+                    <span className="bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded border border-white/10 font-bold tracking-wider flex items-center gap-1.5">
+                      <Clock className="w-3 h-3 text-[#ffd177]" />
+                      {article.readTime}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right/Content Column */}
+                <div className="lg:col-span-7 p-6 sm:p-8 lg:p-10 flex flex-col justify-between space-y-6">
+                  <div className="space-y-4">
+                    
+                    {/* Publication Tag & Byline */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-3">
+                      <span className="font-mono text-[10px] text-[#dca63d] uppercase tracking-widest font-black flex items-center gap-1.5">
+                        <Newspaper className="w-3.5 h-3.5" />
+                        {article.publication} OTT Spotlight
+                      </span>
+                      <span className="font-sans text-xs text-black/60">
+                        By <strong className="text-black font-semibold">{article.author}</strong> ({article.authorRole})
+                      </span>
+                    </div>
+
+                    {/* Headline */}
+                    <h3 
+                      onClick={() => setReadingArticle(article)}
+                      className="font-serif text-2xl sm:text-3xl font-black text-black leading-tight hover:text-[#b91c1c] transition-colors cursor-pointer"
+                    >
+                      {article.headline}
+                    </h3>
+
+                    {/* Excerpt */}
+                    <p className="font-sans text-sm text-black/75 leading-relaxed">
+                      {article.excerpt}
+                    </p>
+
+                    {/* Pull Quote Box */}
+                    <div className="border-l-4 border-black bg-black/5 p-4 rounded-r-2xl space-y-2">
+                      <div className="flex items-start gap-2">
+                        <Quote className="w-4 h-4 text-[#dca63d] shrink-0 mt-0.5 fill-[#dca63d]" />
+                        <p className="font-serif italic text-xs sm:text-sm text-black/90 leading-relaxed font-medium">
+                          "{article.pullQuote}"
+                        </p>
+                      </div>
+                      <p className="font-mono text-[9px] uppercase tracking-widest text-black/50 text-right font-bold">
+                        — {article.pullQuoteSpeaker}
+                      </p>
+                    </div>
+
+                  </div>
+
+                  {/* Actions */}
+                  <div className="pt-2 flex flex-wrap items-center gap-3">
+                    <button
+                      onClick={() => setReadingArticle(article)}
+                      className="px-6 py-3.5 bg-[#0e0e0e] hover:bg-[#ffd177] hover:text-black text-white font-mono text-xs uppercase tracking-widest font-black rounded-full transition-all flex items-center gap-2 shadow-sm cursor-pointer"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      Read Full Interview
+                    </button>
+                    <a
+                      href={article.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-5 py-3.5 border-2 border-black bg-transparent hover:bg-black/5 text-black font-mono text-xs uppercase tracking-widest font-black rounded-full transition-all flex items-center gap-2 cursor-pointer"
+                    >
+                      <span>Filmibeat Source</span>
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* Key Quotes Highlights Bar */}
+              <div className="border-t-2 border-black bg-white/40 p-6 md:p-8">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-black/60 uppercase tracking-widest font-black flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-[#dca63d]" />
+                      Interview Highlights &amp; Direct Quotes
+                    </span>
+                    <span className="font-mono text-[9px] text-black/40 uppercase">
+                      Click quote to view complete interview
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {article.keyQuotes.slice(0, 4).map((kq, idx) => (
+                      <div 
+                        key={idx}
+                        className="bg-white/80 border border-black/15 p-4 rounded-2xl hover:border-black transition-all space-y-2 group cursor-pointer"
+                        onClick={() => setReadingArticle(article)}
+                      >
+                        <span className="font-mono text-[9px] text-[#b91c1c] uppercase tracking-wider font-extrabold block">
+                          {kq.topic}
+                        </span>
+                        <p className="font-serif italic text-xs text-black/80 leading-relaxed line-clamp-3 group-hover:text-black">
+                          "{kq.quote}"
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+            </motion.div>
+          ))}
+        </div>
+
       </section>
 
       {/* SECTION: DIALECT COACHING & VOICE REELS (MERGED) */}
@@ -1381,6 +1573,133 @@ export default function App() {
           </p>
         </div>
       </footer>
+
+      {/* ARTICLE READER MODAL */}
+      <AnimatePresence>
+        {readingArticle && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 md:p-10"
+            onClick={() => setReadingArticle(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-[#fcfaf6] text-[#0e0e0e] max-w-3xl w-full max-h-[92vh] overflow-y-auto rounded-3xl border-2 border-black shadow-2xl p-6 sm:p-10 relative flex flex-col justify-between"
+            >
+              <div>
+                {/* Sticky close & header bar */}
+                <div className="flex items-center justify-between border-b-2 border-black/10 pb-4 mb-6">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-1 bg-[#b91c1c] text-white font-mono text-[9px] uppercase tracking-widest font-black rounded-full">
+                      {readingArticle.badge}
+                    </span>
+                    <span className="font-mono text-[10px] text-black/60 uppercase tracking-wider font-bold">
+                      {readingArticle.publication} • {readingArticle.date}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setReadingArticle(null)}
+                    className="w-9 h-9 rounded-full bg-black/5 hover:bg-black text-black hover:text-white flex items-center justify-center transition-all cursor-pointer"
+                    title="Close Reader"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Article Content */}
+                <article className="space-y-6">
+                  
+                  {/* Headline */}
+                  <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-black text-black leading-tight">
+                    {readingArticle.headline}
+                  </h2>
+
+                  {/* Byline */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 py-2.5 border-y border-black/10 font-mono text-[11px] text-black/60">
+                    <span>Reported by: <strong className="text-black">{readingArticle.author}</strong> ({readingArticle.authorRole})</span>
+                    <span>Est. Read: {readingArticle.readTime}</span>
+                  </div>
+
+                  {/* Hero image with caption */}
+                  <div className="rounded-2xl overflow-hidden border border-black/10 shadow-sm bg-black">
+                    <img
+                      src={readingArticle.imageUrl}
+                      alt={readingArticle.headline}
+                      className="w-full h-auto max-h-[400px] object-cover"
+                    />
+                    <div className="px-4 py-2 bg-black/90 text-white/60 font-mono text-[9px] flex justify-between items-center">
+                      <span>Photo courtesy: Filmibeat / Netflix India</span>
+                      <span>Lust Stories 3 Cast Feature</span>
+                    </div>
+                  </div>
+
+                  {/* Subheadline Lead */}
+                  <p className="font-sans text-base text-black/80 font-medium leading-relaxed italic border-l-4 border-[#ffd177] pl-4">
+                    {readingArticle.subheadline}
+                  </p>
+
+                  {/* Story Paragraphs */}
+                  <div className="space-y-8 font-sans text-sm sm:text-base text-black/85 leading-relaxed pt-2">
+                    {readingArticle.fullStory.map((section, sIdx) => (
+                      <div key={sIdx} className="space-y-3">
+                        {section.sectionHeading && (
+                          <h4 className="font-serif text-lg sm:text-xl font-bold text-black pt-2 border-b border-black/10 pb-1">
+                            {section.sectionHeading}
+                          </h4>
+                        )}
+                        {section.paragraphs.map((para, pIdx) => (
+                          <p key={pIdx} className="leading-relaxed">
+                            {para}
+                          </p>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Pull Quote Spotlight in Modal */}
+                  <div className="border-2 border-black bg-[#fff3db] p-6 rounded-2xl space-y-2 mt-6">
+                    <Quote className="w-5 h-5 text-[#dca63d] fill-[#dca63d]" />
+                    <p className="font-serif italic text-base sm:text-lg text-black font-semibold leading-snug">
+                      "{readingArticle.pullQuote}"
+                    </p>
+                    <p className="font-mono text-[10px] text-black/60 uppercase tracking-widest text-right font-bold pt-1">
+                      — {readingArticle.pullQuoteSpeaker}
+                    </p>
+                  </div>
+
+                </article>
+              </div>
+
+              {/* Bottom Actions */}
+              <div className="mt-10 pt-6 border-t-2 border-black/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <a
+                  href={readingArticle.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-6 py-3 bg-[#0e0e0e] hover:bg-[#ffd177] hover:text-black text-white font-mono text-xs uppercase tracking-widest font-black rounded-full transition-all flex items-center justify-center gap-2 shadow"
+                >
+                  <span>Open Full Story on Filmibeat</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+
+                <button
+                  onClick={() => setReadingArticle(null)}
+                  className="w-full sm:w-auto px-6 py-3 border-2 border-black hover:bg-black/5 text-black font-mono text-xs uppercase tracking-widest font-black rounded-full transition-all text-center cursor-pointer"
+                >
+                  Close Reader
+                </button>
+              </div>
+
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

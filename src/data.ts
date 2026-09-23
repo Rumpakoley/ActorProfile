@@ -1,4 +1,4 @@
-import { ActorProject, DialectCoachProject, VoiceDemo, PersonalDetails, SkillItem } from './types';
+import { ActorProject, DialectCoachProject, VoiceDemo, PersonalDetails, SkillItem, PressArticle } from './types';
 
 export const personalDetails: PersonalDetails = {
   age: 30,
@@ -279,3 +279,74 @@ export const portraitGallery = [
     category: "Coaching"
   }
 ];
+
+export const pressArticles: PressArticle[] = [
+  {
+    id: "filmibeat-lust-stories-3",
+    publication: "Filmibeat",
+    author: "Abhishek Ranjit",
+    authorRole: "Assistant Editor",
+    date: "September 22, 2026",
+    readTime: "4 min read",
+    headline: "Lust Stories 3: Husne Shabnam On Working With Aditi Rao Hydari, Vishal Bhardwaj's Unique Process",
+    subheadline: "Exclusive interview on portraying Mishty, secret tissue-paper auditions, and sharing screen space with Aditi Rao Hydari and Gajraj Rao.",
+    url: "https://www.filmibeat.com/bollywood/ott/2026/lust-stories-3-husne-shabnam-on-working-with-aditi-rao-hydari-vishal-bhardwaj-unique-process-532109.html",
+    imageUrl: "https://images.filmibeat.com/img/2026/09/luststories3husneshabnaminterview-67331790095966.jpg",
+    badge: "Filmibeat Exclusive",
+    excerpt: "Actress and dialect coach Husne Shabnam, currently seen as Mishty in Netflix's Lust Stories 3, opens up about Vishal Bhardwaj's secret audition process, sisterhood, and starstruck moments alongside Aditi Rao Hydari.",
+    pullQuote: "Sir came to each of us and handed us a small piece of tissue paper with our character name written on it. When I opened mine and saw Mishty, it was such a simple but memorable moment.",
+    pullQuoteSpeaker: "Husne Shabnam on discovering her Lust Stories 3 role",
+    keyQuotes: [
+      {
+        topic: "On The Secret Tissue-Paper Auditions",
+        quote: "We began with a table read where all six of us were present. Sir introduced us to the world and the characters but deliberately kept our individual character identities a secret. None of us knew who was playing whom. We were asked to prepare all the dialogues, so all six girls learned the dialogues of every character. The characters were finally revealed during our look test. Sir came to each of us and handed us a small piece of tissue paper with our character name written on it. I remember feeling like I was waiting for my examination result! When I opened mine and saw Mishty, it was such a memorable moment."
+      },
+      {
+        topic: "On Her Character 'Mishty'",
+        quote: "Mishty is a young, lower-middle-class Muslim girl from Hyderabad who is studying Urdu literature. She is curious, playful and mischievous, especially around her closest group of girlfriends. They have created their own safe space where they can talk about things they wouldn't discuss openly elsewhere - relationships, desire, marriage, sex and all the questions they have about what comes next."
+      },
+      {
+        topic: "On Working with Aditi Rao Hydari",
+        quote: "I was genuinely very excited to meet Aditi because I have admired her work for years. She is incredibly graceful, beautiful and such a wonderful artist. I was honestly quite starstruck. I remember telling her, 'Baji, aap itni khoobsurat kyun ho? Main apne aap ko control nahi kar paa rahi hoon!' I was genuinely that overwhelmed every time I saw her on set."
+      },
+      {
+        topic: "On Gajraj Rao's Improvisations",
+        quote: "Gajraj sir is such a brilliant improviser. He brought so much spontaneity to Abbu Jaan that we were always curious to see what he would do next. There was a scene where he improvised something so naturally that, for a moment, I actually wondered whether it was scripted."
+      }
+    ],
+    fullStory: [
+      {
+        sectionHeading: "Stepping into Netflix's Lust Stories 3",
+        paragraphs: [
+          "Actress and dialect coach Husne Shabnam, who is currently seen as Mishty in Netflix's Lust Stories 3, features in the Vishal Bhardwaj-directed segment of the anthology alongside Aditi Rao Hydari and Siddharth.",
+          "In an exclusive conversation with Filmibeat Assistant Editor Abhishek Ranjit, Shabnam opens up about her character, working with Vishal Bhardwaj and her experience on set."
+        ]
+      },
+      {
+        sectionHeading: "The World of Mishty",
+        paragraphs: [
+          "Talking about Mishty, Husne says: 'Mishty is a young, lower-middle-class Muslim girl from Hyderabad who is studying Urdu literature. She is at an interesting transitional point in her life, approaching her final college examination. In the world she comes from, completing college also means stepping into marriage and adulthood. While education is important to her, there is also an underlying expectation that she will eventually get married and build her life around her husband and family.'",
+          "She adds: 'Mishty has grown up in an environment where conversations around relationships and sexuality are not openly encouraged. Dating or having a boyfriend is simply not an option for girls like her. But she is curious, playful and mischievous, especially around her closest group of girlfriends. They have created their own safe space where they can talk about things they wouldn't discuss openly elsewhere — relationships, desire, marriage, sex and all the questions they have about what comes next.'"
+        ]
+      },
+      {
+        sectionHeading: "The Unique Audition: Secret Tissue Papers",
+        paragraphs: [
+          "For her, working with Vishal Bhardwaj was a particularly special experience. Recalling the unique process through which the cast discovered their characters, she says: 'Honestly, working with Vishal sir was beyond a dream for me. I had never imagined that I would get an opportunity to work with a filmmaker like him, and even today, it feels surreal.'",
+          "She recalls: 'We began with a table read where all six of us were present. Sir introduced us to the world and the characters but deliberately kept our individual character identities a secret. None of us knew who was playing whom. We were asked to prepare all the dialogues, so all six girls learned the dialogues of every character.'",
+          "'The characters were finally revealed during our look test. Sir came to each of us and handed us a small piece of tissue paper with our character name written on it. I remember feeling like I was waiting for my examination result! When I opened mine and saw Mishty, it was such a simple but memorable moment,' she adds."
+        ]
+      },
+      {
+        sectionHeading: "Sharing the Screen with Aditi Rao Hydari & Gajraj Rao",
+        paragraphs: [
+          "Husne also fondly remembers sharing screen space with Aditi Rao Hydari, Siddharth and Gajraj Rao in Lust Stories 3.",
+          "Recalling her first interaction with Aditi, she says: 'I was genuinely very excited to meet Aditi because I have admired her work for years. She is incredibly graceful, beautiful and such a wonderful artist. I was honestly quite starstruck. I remember telling her, \"Baji, aap itni khoobsurat kyun ho? Main apne aap ko control nahi kar paa rahi hoon!\" I was genuinely that overwhelmed every time I saw her on set.'",
+          "Talking about her co-stars, she says: 'Aditi and Siddharth are both incredibly talented, but neither of them makes you feel intimidated. They are very easy to be around, and that really helped me as an actor. Working with Gajraj Rao sir was a huge learning experience. Gajraj sir is such a brilliant improviser. He brought so much spontaneity to Abbu Jaan that we were always curious to see what he would do next. There was a scene where he improvised something so naturally that, for a moment, I actually wondered whether it was scripted.'",
+          "Known for her work as a dialect coach on films including Rocky Aur Rani Kii Prem Kahaani, as well as acting projects such as Tribhuvan Mishra CA Topper, The Revolutionaries and Brown, Shabnam is now looking forward to entertaining the audience with her charm and skills."
+        ]
+      }
+    ]
+  }
+];
+
