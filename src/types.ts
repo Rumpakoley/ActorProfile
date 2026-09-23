@@ -21,6 +21,7 @@ export interface DialectCoachProject {
   dialectNotes: string;
   notes?: string;
   testimonial?: string;
+  audioUrl?: string;
 }
 
 export interface VoiceDemo {

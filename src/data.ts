@@ -123,14 +123,15 @@ export const coachProjects: DialectCoachProject[] = [
   },
   {
     id: "coach-3",
-    project: "PhonePe National Campaign",
+    project: "For National Ad Campaign",
     year: "2023",
     director: "—",
-    producerStudio: "PhonePe",
+    producerStudio: "National Campaign",
     platform: "Digital Campaign",
     actorsCoached: ["Amitabh Bachchan"],
     dialectNotes: "Commercial dialect coaching",
-    testimonial: "Instructed legendary Indian icon Amitabh Bachchan on precise regional inflections for a massive nationwide marketing spotlight."
+    testimonial: "Instructed legendary Indian icon Amitabh Bachchan on precise regional inflections for a massive nationwide marketing spotlight.",
+    audioUrl: "https://res.cloudinary.com/dpdtsaalf/video/upload/v1790180750/WhatsApp_Audio_2026-09-21_at_11.07.05_PM_m1z4js.mp4"
   },
   {
     id: "coach-4",

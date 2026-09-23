@@ -101,6 +101,41 @@ export default function App() {
   // Voice reels slider reference
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  // Dedicated coach audio player state
+  const [playingCoachAudioId, setPlayingCoachAudioId] = useState<string | null>(null);
+  const coachAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  const toggleCoachAudio = (id: string, url: string) => {
+    if (isPlaying) {
+      setIsPlaying(false);
+    }
+
+    if (!coachAudioRef.current) {
+      coachAudioRef.current = new Audio(url);
+      coachAudioRef.current.onended = () => setPlayingCoachAudioId(null);
+    }
+
+    if (playingCoachAudioId === id) {
+      coachAudioRef.current.pause();
+      setPlayingCoachAudioId(null);
+    } else {
+      coachAudioRef.current.src = url;
+      coachAudioRef.current.play().catch((err) => {
+        console.error("Audio playback error:", err);
+      });
+      setPlayingCoachAudioId(id);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (coachAudioRef.current) {
+        coachAudioRef.current.pause();
+        coachAudioRef.current = null;
+      }
+    };
+  }, []);
+
   // Movie slider reference
   const movieSliderRef = useRef<HTMLDivElement>(null);
 
@@ -963,6 +998,52 @@ export default function App() {
                             </span>
                           ))}
                         </div>
+
+                        {p.audioUrl && (
+                          <div className="bg-white/5 border border-[#ffd177]/40 hover:border-[#ffd177] rounded-2xl p-3 flex items-center justify-between gap-3 transition-colors mt-2">
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() => toggleCoachAudio(p.id, p.audioUrl!)}
+                                className="w-9 h-9 rounded-full bg-[#ffd177] text-black flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow cursor-pointer shrink-0"
+                                title={playingCoachAudioId === p.id ? "Pause Voice Clip" : "Play Voice Clip"}
+                              >
+                                {playingCoachAudioId === p.id ? (
+                                  <Pause className="w-4 h-4 fill-black text-black" />
+                                ) : (
+                                  <Play className="w-4 h-4 fill-black text-black ml-0.5" />
+                                )}
+                              </button>
+                              <div className="space-y-0.5 text-left">
+                                <span className="font-mono text-[10px] text-[#ffd177] uppercase font-bold tracking-wider block">
+                                  {playingCoachAudioId === p.id ? "Playing Voice Clip..." : "Listen to Campaign Voice"}
+                                </span>
+                                <span className="font-mono text-[9px] text-white/50 block">
+                                  Dialect Coaching Recording
+                                </span>
+                              </div>
+                            </div>
+                            {playingCoachAudioId === p.id ? (
+                              <div className="flex items-center gap-1 h-5 pr-2">
+                                {[40, 90, 60, 100, 75, 50, 85].map((h, i) => (
+                                  <div
+                                    key={i}
+                                    className="w-1 bg-[#ffd177] rounded-full animate-pulse"
+                                    style={{
+                                      height: `${h}%`,
+                                      animationDelay: `${i * 120}ms`,
+                                      animationDuration: '600ms'
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="pr-2">
+                                <Volume2 className="w-4 h-4 text-[#ffd177]/60" />
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       <div className="border-t border-white/10 pt-4 flex flex-col justify-between gap-3">
@@ -1134,6 +1215,10 @@ export default function App() {
                 {/* Play button */}
                 <button 
                   onClick={() => {
+                    if (playingCoachAudioId && coachAudioRef.current) {
+                      coachAudioRef.current.pause();
+                      setPlayingCoachAudioId(null);
+                    }
                     if (playbackSeconds === 0 && !isPlaying) {
                       setPlaybackSeconds(1);
                     }
