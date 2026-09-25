@@ -145,7 +145,7 @@ export const coachProjects: DialectCoachProject[] = [
   },
   {
     id: "coach-5",
-    project: "Brown (Upcoming Series)",
+    project: "Brown",
     year: "Upcoming",
     director: "Abhinay Deo",
     producerStudio: "ZEE Studios",
