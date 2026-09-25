@@ -155,7 +155,7 @@ export const coachProjects: DialectCoachProject[] = [
   },
   {
     id: "coach-6",
-    project: "The Revolutionaries (Upcoming Series)",
+    project: "The Revolutionaries",
     year: "Upcoming",
     director: "Nikkhil Advani",
     producerStudio: "Emmay Entertainment / Amazon Prime Video",
