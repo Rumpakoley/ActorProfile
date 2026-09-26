@@ -32,7 +32,7 @@ export const actorProjects: ActorProject[] = [
     platform: "Netflix",
     featured: true,
     synopsis: "Collaborator in legendary director Vishal Bhardwaj's segment, handling a nuanced, character-driven leading role.",
-    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1790003443/photo_c6c4ly.avif"
+    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1790333167/632103-lead-image-1-2_suku1q.jpg"
   },
   {
     id: "act-4",
