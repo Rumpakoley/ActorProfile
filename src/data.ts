@@ -35,6 +35,17 @@ export const actorProjects: ActorProject[] = [
     imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1790333167/632103-lead-image-1-2_suku1q.jpg"
   },
   {
+    id: "act-8",
+    project: "The Revolutionaries",
+    year: "Upcoming",
+    role: "Primary Cast",
+    director: "Nikkhil Advani",
+    platform: "Amazon Prime Video",
+    featured: true,
+    synopsis: "An upcoming historical series created and directed by Nikkhil Advani for Amazon Prime Video.",
+    imageUrl: "https://res.cloudinary.com/dpdtsaalf/image/upload/v1790432974/images_1_istwlc.jpg"
+  },
+  {
     id: "act-4",
     project: "Rocky Aur Rani Kii Prem Kahaani",
     year: "2023",
