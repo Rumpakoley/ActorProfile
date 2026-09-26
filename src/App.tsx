@@ -670,14 +670,16 @@ export default function App() {
                   );
                 }
 
+                const isWidescreen = p.project.includes('Lust Stories') || p.project.includes('Hero Kaun');
+
                 return (
                   <div 
                     key={p.id}
-                    className="snap-start shrink-0 w-72 md:w-80 border-2 border-black bg-[#0e0e0e] text-[#f5f2eb] p-5 rounded-3xl flex flex-col justify-between h-[32rem] relative group hover:scale-[1.01] transition-transform duration-300"
+                    className={`snap-start shrink-0 ${isWidescreen ? 'w-80 sm:w-96 md:w-[28rem]' : 'w-72 md:w-80'} border-2 border-black bg-[#0e0e0e] text-[#f5f2eb] p-5 rounded-3xl flex flex-col justify-between h-[32rem] relative group hover:scale-[1.01] transition-transform duration-300`}
                   >
                     <div>
                       {/* Cover art container */}
-                      <div className={`aspect-square w-full rounded-2xl overflow-hidden relative border border-white/10 bg-[#080808] flex items-center justify-center ${p.imageUrl ? '' : coverBg}`}>
+                      <div className={`${isWidescreen ? 'aspect-video' : 'aspect-square'} w-full rounded-2xl overflow-hidden relative border border-white/10 bg-[#080808] flex items-center justify-center ${p.imageUrl ? '' : coverBg}`}>
                         {p.imageUrl ? (
                           <>
                             {/* Ambient blurred backdrop for soft fill */}
@@ -690,7 +692,7 @@ export default function App() {
                             <img
                               src={p.imageUrl}
                               alt={p.project}
-                              className="w-full h-full object-contain relative z-10 transition-transform duration-500 group-hover:scale-105"
+                              className={`w-full h-full ${isWidescreen ? 'object-cover' : 'object-contain'} relative z-10 transition-transform duration-500 group-hover:scale-105`}
                               loading="lazy"
                             />
                           </>
